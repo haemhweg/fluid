@@ -2,11 +2,9 @@
 #include "vector.h"
 #include "real.h"
 
-int main() {
+#include <iostream>
 
-	Matrix A(3, 3);
-	A.fill(10);
-	A.apply([](REAL a) -> REAL { return 2 * a; });
+int main(int argc, char **argv) {
 
 	return 0;
 }
