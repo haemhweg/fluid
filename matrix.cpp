@@ -27,7 +27,10 @@ Matrix::Matrix(size_t M, size_t N) : M(M), N(N)
 
 Matrix::~Matrix()
 {
-	free(_data);
+  for(size_t i=0; i<M; ++i) {
+    free(_data[i]);
+  }
+  free(_data);
 }
 
 void Matrix::fill(REAL value)
