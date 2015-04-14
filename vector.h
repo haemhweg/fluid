@@ -5,13 +5,20 @@
 
 #include "real.h"
 
-class Vector {
+class Vector
+{
 private:
 	/* It tends to be a bad idea to make non-const fields public because it then becomes hard to force error checking constraints and/or add side-effects to value changes in the future. */
 	REAL* _data;
 	size_t size;
+	void allocateData();
 public:
 	Vector(size_t size);
+	/**
+	* Since we write size of the matrix in the file, we can't instaniate it on its own without reading it before.
+	* So instead of read function we use appropriate constructor.
+	*/
+	Vector(const std::string & filename);
 	~Vector();
 	/* Fill with REAL values */
 	void fill(REAL value);
@@ -24,6 +31,8 @@ public:
 	REAL get(size_t N) const;
 	void set(size_t N, REAL v);
 	REAL nrm2() const;
+	void print();
+	void write(const std::string & filename);
 
 };
 
