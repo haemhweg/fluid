@@ -49,7 +49,7 @@ public:
 	* I guess I need a clarification here, now implemented with fstreams.
 	*/
 	void write(const std::string & filename);
-	void writeVTKfile(const std::string & filename);
+	void writeVTKfile(const std::string & filename, const std::string& descr, const double dx=0.1, const double dy=0.1);
 };
 
 /**
@@ -62,5 +62,7 @@ Vector * operator*(const Matrix & A, const Vector & v);
 Matrix * operator*(REAL a, const Matrix & A);
 Matrix * operator+(const Matrix & A1, const Matrix & A2);
 bool operator==(const Matrix & v1, const Matrix & v2);
+
+void writeVectorFieldVTK(const std::string& filename, const std::string& descr, const Matrix& U, const Matrix& V, const double dx=0.1, const double dy=0.1);
 
 #endif

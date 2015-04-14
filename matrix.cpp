@@ -28,7 +28,10 @@ Matrix::Matrix(size_t M, size_t N) : M(M), N(N)
 
 Matrix::~Matrix()
 {
-	free(_data);
+  for(size_t i=0; i<M; ++i) {
+    free(_data[i]);
+  }
+  free(_data);
 }
 
 void Matrix::fill(REAL value)
@@ -203,9 +206,40 @@ void Matrix::write(const std::string & filename)
 	fs << std::endl;
 }
 
-void Matrix::writeVTKfile(const std::string & filename)
+void Matrix::writeVTKfile(const std::string & filename, const std::string& descr, const double dx, const double dy)
 {
+  std::ofstream fs(filename);
 
+  fs << "# vtk DataFile Version 3.0\n"
+     << "Scalar Field\n"
+     << "ASCII\n"
+     << "DATASET RECTILINEAR_GRID\n"
+     << "DIMENSIONS " << M << " " << N << " 1\n"
+     << "X_COORDINATES " << M << " double\n";
+
+  for(size_t i=0; i<M; ++i) {
+    fs << dx*i << " ";
+  }
+
+  fs << "\nY_COORDINATES " << N << " double\n";
+  
+  for(size_t j=0; j<N; ++j) {
+    fs << dy*j << " ";
+  }
+
+  fs << "\nZ_COORDINATES 1 double\n"
+     << "0.0\n"
+     << "POINT_DATA " << M*N << "\n"
+     << "SCALARS " << descr << " double 1\n"
+     << "LOOKUP_TABLE default\n";
+
+  for(size_t j=0; j<N; ++j) {
+    for(size_t i=0; i<M; ++i) {
+      fs << _data[i][j] << "\n";
+    }
+  }
+
+  fs << std::endl;    
 }
 
 Matrix::Matrix(const std::string & filename)
@@ -224,4 +258,41 @@ Matrix::Matrix(const std::string & filename)
 		_data[i / N][i % N] = d;
 		i++;
 	}
+}
+
+void writeVectorFieldVTK(const std::string& filename, const std::string& descr, const Matrix& U, const Matrix& V, const double dx, const double dy)
+{
+  std::ofstream fs(filename);
+
+  size_t M = U.getRows(), N = U.getCols();
+
+  fs << "# vtk DataFile Version 3.0\n"
+     << "Vector Field\n"
+     << "ASCII\n"
+     << "DATASET RECTILINEAR_GRID\n"
+     << "DIMENSIONS " << M << " " << N << " 1\n"
+     << "X_COORDINATES " << M << " double\n";
+
+  for(size_t i=0; i<M; ++i) {
+    fs << dx*i << " ";
+  }
+
+  fs << "\nY_COORDINATES " << N << " double\n";
+  
+  for(size_t j=0; j<N; ++j) {
+    fs << dy*j << " ";
+  }
+
+  fs << "\nZ_COORDINATES 1 double\n"
+     << "0.0\n"
+     << "POINT_DATA " << M*N << "\n"
+     << "VECTORS " << descr << " double\n";
+
+  for(size_t j=0; j<N; ++j) {
+    for(size_t i=0; i<M; ++i) {
+      fs << U.get(i,j) << " " << V.get(i,j) << " 0.0\n";
+    }
+  }
+
+  fs << std::endl;  
 }
