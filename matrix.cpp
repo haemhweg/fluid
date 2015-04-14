@@ -211,9 +211,40 @@ void Matrix::write(const std::string & filename)
 
 }
 
-void Matrix::writeVTKfile(const std::string & filename)
+void Matrix::writeVTKfile(const std::string & filename, const std::string& descr, const double dx, const double dy)
 {
+  std::ofstream fs(filename);
 
+  fs << "# vtk DataFile Version 3.0\n"
+     << "Scalar Field\n"
+     << "ASCII\n"
+     << "DATASET RECTILINEAR_GRID\n"
+     << "DIMENSIONS " << M << " " << N << " 1\n"
+     << "X_COORDINATES " << M << " double\n";
+
+  for(size_t i=0; i<M; ++i) {
+    fs << dx*i << " ";
+  }
+
+  fs << "\nY_COORDINATES " << N << " double\n";
+  
+  for(size_t j=0; j<N; ++j) {
+    fs << dy*j << " ";
+  }
+
+  fs << "\nZ_COORDINATES 1 double\n"
+     << "0.0\n"
+     << "POINT_DATA " << M*N << "\n"
+     << "SCALARS " << descr << " double 1\n"
+     << "LOOKUP_TABLE default\n";
+
+  for(size_t j=0; j<N; ++j) {
+    for(size_t i=0; i<M; ++i) {
+      fs << _data[i][j] << "\n";
+    }
+  }
+
+  fs << std::endl;    
 }
 
 Matrix::Matrix(const std::string & filename)

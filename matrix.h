@@ -49,7 +49,7 @@ public:
 	* I guess I need a clarification here, now implemented with fstreams.
 	*/
 	void write(const std::string & filename);
-	void writeVTKfile(const std::string & filename);
+	void writeVTKfile(const std::string & filename, const std::string& descr, const double dx=0.1, const double dy=0.1);
 };
 
 /**
