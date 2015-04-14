@@ -1,3 +1,5 @@
+#include <string>
+#include <iostream>
 #include <stdlib.h>
 #include <stdexcept>
 
@@ -6,6 +8,11 @@
 
 Vector::Vector(size_t size) : size(size) {
 	_data = (REAL *)malloc(sizeof(REAL) * size);
+}
+
+Vector::Vector(Vector&& rhs) : _data(rhs._data), size(rhs.size) {
+  rhs.size = 0;
+  rhs._data = nullptr;
 }
 
 Vector::~Vector() {
@@ -113,4 +120,42 @@ void Vector::copy(const Vector & x) {
 		_data[i] = x._data[i];
 	}
 
+}
+
+void Vector::print(const std::string& prefix, const std::string& delim) const {
+  std::cout << prefix << std::endl;
+
+  std::cout << std::setprecision(2);
+  for(unsigned i=0; i<size; ++i)
+    std::cout << "\t" << _data[i] << delim;
+
+  std::cout << std::endl;    
+}
+
+void Vector::writeBinary(const std::string& fileName) const {
+  std::ostream file(fileName);
+
+  file << size;
+
+  for(unsigned i=0; i<size; ++i) {
+    file << " " << _data[i];
+  }
+  file << std::endl;    
+}
+
+Vector readVectorFromBinary(const std::string& fileName) {
+  std::ifstream file{fileName};
+  size_t size;
+
+  file >> size;
+
+  Vector x{size};
+
+  for(size_t i=0; i<size; ++i) {
+    REAL val;
+    file >> val;
+    x.set(i, val);
+  }
+
+  return x;
 }

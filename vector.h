@@ -25,6 +25,7 @@ public:
 	void set(size_t N, REAL v);
 	REAL nrm2() const;
 
+	print(const std::string& prefix, const std::string& delim="\n") const;
 };
 
 bool operator==(const Vector & v1, const Vector & v2);
