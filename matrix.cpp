@@ -26,6 +26,23 @@ Matrix::Matrix(size_t M, size_t N) : M(M), N(N)
 	allocateData();
 }
 
+Matrix::Matrix(const std::string & filename)
+{
+  std::ifstream fs(filename, std::ios::binary);
+
+	fs >> M >> N;
+
+	std::cout << M << " " << N << std::endl;
+
+	allocateData();
+
+	for(size_t i=0; i<M; ++i) {
+	  for(size_t j=0; j<N; ++j) {
+	    fs >> _data[i][j];
+	  }
+	}
+}
+
 Matrix::~Matrix()
 {
   for(size_t i=0; i<M; ++i) {
@@ -191,7 +208,7 @@ void Matrix::print()
 
 void Matrix::write(const std::string & filename)
 {
-  std::ofstream fs(filename);
+  std::ofstream fs(filename, std::ios::binary);
 
   fs << M << " " << N << " ";
 
@@ -240,24 +257,6 @@ void Matrix::writeVTKfile(const std::string & filename, const std::string& descr
   }
 
   fs << std::endl;    
-}
-
-Matrix::Matrix(const std::string & filename)
-{
-	std::ifstream fs(filename);
-
-	fs >> M >> N;
-
-	allocateData();
-
-	REAL d;
-
-	size_t i = 0;
-	while (fs >> d)
-	{
-		_data[i / N][i % N] = d;
-		i++;
-	}
 }
 
 void writeVectorFieldVTK(const std::string& filename, const std::string& descr, const Matrix& U, const Matrix& V, const double dx, const double dy)

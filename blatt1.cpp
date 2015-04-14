@@ -43,10 +43,13 @@ int main(int argc, char **argv) {
     }
   }
 
-  gradientMatrix.writeVTKfile("gradientField.vtk");
-  sinusMatrix.writeVTKfile("sinusMatrix.vtk");
+  gradientMatrix.writeVTKfile("gradientField.vtk", "gradientField");
+  sinusMatrix.writeVTKfile("sinusField.vtk", "sinusField");
 
   // Print U and V to .vtk
+  U.print();
+  V.print();
+  writeVectorFieldVTK("vectorField.vtk", "vectorField", U, V);  
 
   return 0;
 }

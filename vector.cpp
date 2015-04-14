@@ -163,9 +163,7 @@ void Vector::print()
 
 void Vector::write(const std::string & filename)
 {
-	std::ofstream fs;
-
-	fs.open(filename);
+  std::ofstream fs(filename, std::ios::binary);
 
 	fs << size << std::endl;
 
@@ -173,13 +171,11 @@ void Vector::write(const std::string & filename)
 	{
 		fs << _data[i] << std::endl;
 	}
-
-	fs.close();
 }
 
 Vector::Vector(const std::string & filename)
 {
-	std::ifstream fs(filename);
+  std::ifstream fs(filename, std::ios::binary);
 
 	fs >> size;
 
