@@ -1,3 +1,6 @@
+#ifndef __BLAS_H__
+#define __BLAS_H__
+
 /**
  * Use given function names due to standardization reasons. The functions below might use methods of the classes.
  */
@@ -15,3 +18,5 @@ Vector * gemv(REAL a, const Matrix & A, const Vector & x, REAL b, const Vector &
 
 Matrix * scal2Dfield(REAL a, Matrix & X);
 Matrix * axpy2Dfield(REAL a, const Matrix & X, const Matrix & Y);
+
+#endif

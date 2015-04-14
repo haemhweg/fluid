@@ -1,15 +1,15 @@
 #include <iostream>
+#include <string>
 #include <cmath>
 
 #include "matrix.h"
 #include "vector.h"
 #include "real.h"
 
-
 int main(int argc, char **argv) {
   Vector x{10}, y{10};
   Matrix A{10,10}, gradientMatrix{60,40}, sinusMatrix{60,40};
-  Matrix U, V;
+  Matrix U{"fieldU.dat"}, V{"fieldV.dat"};
 
   // Initialize A with A_ij = (i+1)*(j+1)
   for(unsigned i=0; i<10; ++i) {
@@ -25,16 +25,26 @@ int main(int argc, char **argv) {
   }
 
   // Display A 
+  A.print();
+
+  // Various computations
+  REAL nrm = (A*x)->nrm2();
+  REAL scpr = 0.;//&(&(5.0*x) + &(A*x)) * &(1.5*x);
+
+  std::cout << "nrm2(A*x):" << nrm << std::endl;
+  std::cout << "(5*x + A*x) * (1.5*x):" << scpr << std::endl;
+
   
   // Initialize gradient matrix and sinus matrix
   for(unsigned i=0; i<60; ++i) {
     for(unsigned j=0; j<40; ++j) {
       gradientMatrix.set(i, j, M_PI * i / 60.);
-      sinusMatrix.set(i, j, sin(i));
+      sinusMatrix.set(i, j, sin(double(i)));
     }
   }
 
-  // Read matrices U and V
+  gradientMatrix.writeVTKfile("gradientField.vtk");
+  sinusMatrix.writeVTKfile("sinusMatrix.vtk");
 
   // Print U and V to .vtk
 
