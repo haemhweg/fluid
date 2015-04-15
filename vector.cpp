@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <string>
 #include <fstream>
+#include <cmath>
 
 #include "real.h"
 #include "vector.h"
@@ -176,11 +177,6 @@ void Vector::write(const std::string & filename)
 	}
 
 	fs.close();
-
-}
-
-void Vector::writeVTKfile(const std::string & filename)
-{
 
 }
 
