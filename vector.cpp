@@ -1,3 +1,5 @@
+#include <string>
+#include <iostream>
 #include <stdlib.h>
 #include <stdexcept>
 #include <iostream>
@@ -14,6 +16,7 @@ void Vector::allocateData()
 	_data = (REAL *)malloc(sizeof(REAL) * size);
 }
 
+<<<<<<< HEAD
 Vector::Vector(size_t size) : size(size)
 {
 	allocateData();
@@ -21,6 +24,14 @@ Vector::Vector(size_t size) : size(size)
 
 Vector::~Vector()
 {
+=======
+Vector::Vector(Vector&& rhs) : _data(rhs._data), size(rhs.size) {
+  rhs.size = 0;
+  rhs._data = nullptr;
+}
+
+Vector::~Vector() {
+>>>>>>> 82a3f4f7a3a60d87a8d660b2399ecbe03886241c
 	free(_data);
 }
 
@@ -148,6 +159,7 @@ void Vector::copy(const Vector & x)
 
 }
 
+<<<<<<< HEAD
 void Vector::print()
 {
 
@@ -188,4 +200,42 @@ Vector::Vector(const std::string & filename)
 	{
 		_data[i++] = d;
 	}
+=======
+void Vector::print(const std::string& prefix, const std::string& delim) const {
+  std::cout << prefix << std::endl;
+
+  std::cout << std::setprecision(2);
+  for(unsigned i=0; i<size; ++i)
+    std::cout << "\t" << _data[i] << delim;
+
+  std::cout << std::endl;    
+}
+
+void Vector::writeBinary(const std::string& fileName) const {
+  std::ostream file(fileName);
+
+  file << size;
+
+  for(unsigned i=0; i<size; ++i) {
+    file << " " << _data[i];
+  }
+  file << std::endl;    
+}
+
+Vector readVectorFromBinary(const std::string& fileName) {
+  std::ifstream file{fileName};
+  size_t size;
+
+  file >> size;
+
+  Vector x{size};
+
+  for(size_t i=0; i<size; ++i) {
+    REAL val;
+    file >> val;
+    x.set(i, val);
+  }
+
+  return x;
+>>>>>>> 82a3f4f7a3a60d87a8d660b2399ecbe03886241c
 }
