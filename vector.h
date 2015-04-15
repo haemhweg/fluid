@@ -33,6 +33,7 @@ public:
 	REAL nrm2() const;
 	void print();
 	void write(const std::string & filename);
+	void writeVTKfile(const std::string & filename);
 
 };
 
