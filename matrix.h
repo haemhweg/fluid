@@ -63,6 +63,11 @@ Matrix * operator*(REAL a, const Matrix & A);
 Matrix * operator+(const Matrix & A1, const Matrix & A2);
 bool operator==(const Matrix & v1, const Matrix & v2);
 
+/**
+ *  Writes a 2D vector field to a .vtk file. The first component of the vector field is passed by the matrix
+ *  U and the second component by the matrix V.
+ *  The filename has to end in ".vtk"!
+ */
 void writeVectorFieldVTK(const std::string& filename, const std::string& descr, const Matrix& U, const Matrix& V, const double dx=0.1, const double dy=0.1);
 
 #endif

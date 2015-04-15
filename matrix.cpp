@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
+#include <ios>
 
 #include "real.h"
 #include "matrix.h"
@@ -23,6 +24,22 @@ void Matrix::allocateData()
 Matrix::Matrix(size_t M, size_t N) : M(M), N(N)
 {
 	allocateData();
+}
+
+Matrix::Matrix(const std::string & filename)
+{
+  std::ifstream fs(filename, std::ios::binary);
+
+  size_t real_size = sizeof(REAL);
+
+  fs.read(&M, real_size);
+  fs.read(&N, real_size);
+
+  allocateData();
+
+  for(size_t i=0; i<M; ++i) {
+    fs.read(_data[i], N*real_size);
+  }
 }
 
 Matrix::~Matrix()
@@ -175,7 +192,6 @@ Matrix * operator+(const Matrix & A1, const Matrix & A2)
 
 void Matrix::print()
 {
-
 	std::cout << std::endl;
 	std::cout << std::setprecision(2) << std::setw(7);
 
@@ -187,28 +203,21 @@ void Matrix::print()
 		}
 		std::cout << std::endl;
 	}
-
 }
 
 void Matrix::write(const std::string & filename)
 {
-	std::ofstream fs;
+  std::ofstream fs(filename, std::ios::binary);
+  
+  size_t real_size = sizeof(REAL);
 
-	fs.open(filename);
+  fs.write(&M, real_size);
+  fs.write(&N, real_size);
 
-	fs << M << std::endl;
-	fs << N << std::endl;
-
-	for (size_t i = 0; i < M; i++)
-	{
-		for (size_t j = 0; j < N; j++)
-		{
-			fs << _data[i][j] << std::endl;
-		}
-	}
-
-	fs.close();
-
+  for (size_t i = 0; i < M; i++)
+    {
+      fs.write(_data[i], N*real_size);
+    }
 }
 
 void Matrix::writeVTKfile(const std::string & filename, const std::string& descr, const double dx, const double dy)
@@ -245,24 +254,6 @@ void Matrix::writeVTKfile(const std::string & filename, const std::string& descr
   }
 
   fs << std::endl;    
-}
-
-Matrix::Matrix(const std::string & filename)
-{
-	std::ifstream fs(filename);
-
-	fs >> M >> N;
-
-	allocateData();
-
-	REAL d;
-
-	size_t i = 0;
-	while (fs >> d)
-	{
-		_data[i / N][i % N] = d;
-		i++;
-	}
 }
 
 void writeVectorFieldVTK(const std::string& filename, const std::string& descr, const Matrix& U, const Matrix& V, const double dx, const double dy)

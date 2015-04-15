@@ -105,11 +105,9 @@ Vector * operator+(const Vector & v1, const Vector & v2)
 }
 
 REAL Vector::nrm2() const
-{
-	
+{	
 	/* Kinda works */
-	return sqrt((*this) * (*this));
-
+  return sqrt((*this) * (*this));
 }
 
 size_t Vector::getSize() const
@@ -165,9 +163,7 @@ void Vector::print()
 
 void Vector::write(const std::string & filename)
 {
-	std::ofstream fs;
-
-	fs.open(filename);
+  std::ofstream fs(filename, std::ios::binary);
 
 	fs << size << std::endl;
 
@@ -175,14 +171,11 @@ void Vector::write(const std::string & filename)
 	{
 		fs << _data[i] << std::endl;
 	}
-
-	fs.close();
-
 }
 
 Vector::Vector(const std::string & filename)
 {
-	std::ifstream fs(filename);
+  std::ifstream fs(filename, std::ios::binary);
 
 	fs >> size;
 
