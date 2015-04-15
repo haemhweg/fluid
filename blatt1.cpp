@@ -28,8 +28,12 @@ int main(int argc, char **argv) {
   A.print();
 
   // Various computations
-  REAL nrm = (A*x)->nrm2();
-  REAL scpr = 0.;//&(&(5.0*x) + &(A*x)) * &(1.5*x);
+  Vector* Ax = A*x;
+  REAL nrm = Ax->nrm2();
+  
+  Vector* xScal5 = 5.0*x, * xScal15 = 1.5*x;
+  Vector* xSum = *xScal5 + *Ax;
+  REAL scpr = *xSum * *xScal15;
 
   std::cout << "nrm2(A*x):" << nrm << std::endl;
   std::cout << "(5*x + A*x) * (1.5*x):" << scpr << std::endl;
@@ -38,7 +42,7 @@ int main(int argc, char **argv) {
   // Initialize gradient matrix and sinus matrix
   for(unsigned i=0; i<60; ++i) {
     for(unsigned j=0; j<40; ++j) {
-      gradientMatrix.set(i, j, M_PI * i / 60.);
+      gradientMatrix.set(i, j, PI * i / 60.);
       sinusMatrix.set(i, j, sin(double(i)));
     }
   }
@@ -50,6 +54,11 @@ int main(int argc, char **argv) {
   U.print();
   V.print();
   writeVectorFieldVTK("vectorField.vtk", "vectorField", U, V);  
+
+  delete Ax;
+  delete xScal5;
+  delete xScal15;
+  delete xSum;
 
   return 0;
 }
