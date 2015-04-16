@@ -2,16 +2,11 @@
 #include <time.h>
 #include <stdexcept>
 #include <functional>
-<<<<<<< HEAD
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <string>
 #include <ios>
-=======
-#include <string>
-#include <iostream>
->>>>>>> 82a3f4f7a3a60d87a8d660b2399ecbe03886241c
 
 #include "real.h"
 #include "matrix.h"
@@ -26,23 +21,9 @@ void Matrix::allocateData()
 	}
 }
 
-<<<<<<< HEAD
 Matrix::Matrix(size_t M, size_t N) : M(M), N(N)
 {
 	allocateData();
-=======
-Matrix::Matrix(Matrix&& rhs) : _data(rhs._data), M(rhs.M), N(rhs.N) {
-  rhs.M = 0;
-  rhs.N = 0;
-  rhs._data = nullptr;
-}
-
-Matrix::~Matrix() {
-  for(size_t i=0; i<M; ++i) {
-    free(_data[i]);
-  }
-  free(_data);
->>>>>>> 82a3f4f7a3a60d87a8d660b2399ecbe03886241c
 }
 
 Matrix::Matrix(const std::string & filename)
@@ -146,75 +127,8 @@ void Matrix::apply(const std::function<REAL(REAL)> & f)
 	}
 }
 
-<<<<<<< HEAD
 Vector * operator*(const Matrix & A, const Vector & v)
 {
-=======
-void Matrix::print(const std::string& prefix, const std::string& delim) const {
-  std::cout << prefix;
-
-  std::cout << std::setprecision(2);
-  for(unsigned i=0; i<M; ++i) {
-    for(unsigned j=0; j<N; ++j) {
-      std::cout << "\t" << _data[i][j] << delim;
-    }
-    std::cout << "\n";
-  }
-  std::cout << std::endl;
-}
-
-void Matrix::writeBinary(const std::string& fileName) const {
-  std::ofstream file(fileName);
-
-  file << M << " " << N;
-
-  for(unsigned i=0; i<M; ++i) {
-    for(unsigned j=0; j<N; ++j) {
-      file << " " << _data[i][j];
-    }
-  }
-  file << std::endl;
-}
-
-void Matrix::writeVTK(const std::string& fileName, const std::string& descr, const REAL dx, const REAL dy) const {
-  std::ofstream file(fileName);
-
-  // Header information
-  file << "# vtk DataFile Version 3.0\n"
-       << "Scalar Field\n"
-       << "ASCII\n"
-       << "DATASET RECTILIEAR_GRID\n"
-       << "DIMENSIONS " << M << " " << N << " 1\n"
-       << "X_COORDINATES " << M << " double\n";
-  
-  for(size_t i=0; i<M; ++i) {
-    file << dx*i << " ";
-  }
-
-  file << "\nY_COORDINATES " << N << " double\n";
-  
-  for(size_t j=0; j<N; ++j) {
-    file << dy*j << " ";
-  }
-
-  file << "\nZ_COORDINATES 1 double\n"
-       << "0.0\n"
-       << "POINT_DATA " << M*N << "\n"
-       << "SCALARS " << descr << " double\n"
-       << "LOOKUP_TABLE default\n";
-
-  // Data
-  for(size_t j=0; j<N; ++j) {
-    for(size_t i=0; i<M; ++i) {
-      file << _data[i][j] << "\n";
-    }	
-  }
-  
-  file << std::endl;
-}
-
-Vector * operator*(const Matrix & A, const Vector & v) {
->>>>>>> 82a3f4f7a3a60d87a8d660b2399ecbe03886241c
 
 	if (v.getSize() != A.getCols())
 	{
@@ -276,7 +190,6 @@ Matrix * operator+(const Matrix & A1, const Matrix & A2)
 
 }
 
-<<<<<<< HEAD
 void Matrix::print()
 {
 	std::cout << std::endl;
@@ -378,62 +291,4 @@ void writeVectorFieldVTK(const std::string& filename, const std::string& descr, 
   }
 
   fs << std::endl;  
-=======
-Matrix readMatrixFromBinary(const std::string& fileName) {
-  std::ifstream file{fileName};
-  size_t M{0}, N{0};
-
-  file >> M >> N;
-
-  Matrix A{M, N};
-
-  for(size_t i=0; i<M; ++i) {
-    for(size_t j=0; j<N; ++j) {
-      REAL val{0};
-      file >> val;
-      A.set(i, j, val);
-    }
-  }
-
-  return A;
-}
-
-void writeVectorFieldVTK(const std::string& fileName, const std::string& descr,
-			 const Matrix& U, const Matrix& V, const REAL dx, const REAL dy) {
-  assert(U.getRows() == V.getRows() && U.getCols() == V.getCols());
-
-   std::ofstream file(fileName);
-
-  // Header information
-  file << "# vtk DataFile Version 3.0\n"
-       << "Vector Field\n"
-       << "ASCII\n"
-       << "DATASET RECTILIEAR_GRID\n"
-       << "DIMENSIONS " << M << " " << N << " 1\n"
-       << "X_COORDINATES " << M << " double\n";
-  
-  for(size_t i=0; i<M; ++i) {
-    file << dx*i << " ";
-  }
-
-  file << "\nY_COORDINATES " << N << " double\n";
-  
-  for(size_t j=0; j<N; ++j) {
-    file << dy*j << " ";
-  }
-
-  file << "\nZ_COORDINATES 1 double\n"
-       << "0.0\n"
-       << "POINT_DATA " << M*N << "\n"
-       << "VECTORS " << descr << " double\n";
-
-  // Data
-  for(size_t j=0; j<N; ++j) {
-    for(size_t i=0; i<M; ++i) {
-      file << U.get(i,j) << " " << V.get(i,j) << " 0.0\n";
-    }	
-  }
-  
-  file << std::endl;
->>>>>>> 82a3f4f7a3a60d87a8d660b2399ecbe03886241c
 }
