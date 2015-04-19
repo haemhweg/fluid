@@ -4,3 +4,6 @@
 !*.cpp
 !.gitignore
 !Makefile
+!*.vtk
+!*.dat
+!CMakeLists.txt
