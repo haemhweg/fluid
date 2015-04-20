@@ -1,5 +1,7 @@
 # Ignore all except .h and .cpp
 *
+DEBUG/*
+RELEASE/*
 !*.h
 !*.cpp
 !.gitignore

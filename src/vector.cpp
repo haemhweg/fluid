@@ -13,17 +13,17 @@
 
 void Vector::allocateData()
 {
-	_data = (REAL *)malloc(sizeof(REAL) * size);
+	_data = new REAL[size];
 }
 
-Vector::Vector(size_t size) : size(size)
+Vector::Vector(size_t size_) : size(size_)
 {
 	allocateData();
 }
 
 Vector::~Vector()
 {
-	free(_data);
+	delete [] _data;
 }
 
 void Vector::fill(REAL value)

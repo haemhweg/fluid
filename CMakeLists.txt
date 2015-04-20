@@ -21,7 +21,7 @@ file(GLOB SRC ${SRCPATH}/*.cpp)
 file(GLOB INCLUDE ${INCPATH}/*.h)
 
 ## add includes
-include_directories("${INCLUDEPATH}")
+include_directories("${INCPATH}")
 
 add_library(CFD ${INCLUDE} ${SRC})
 
@@ -31,5 +31,12 @@ add_library(CFD ${INCLUDE} ${SRC})
 
 ## add input
 
-configure_file("./*.vtk" "./" COPYONLY)
-configure_file("./*.dat" "./" COPYONLY)
+file(GLOB InputFiles ${PROJECT_SOURCE_DIR}/input/*.vtk
+                     ${PROJECT_SOURCE_DIR}/input/*.dat)
+
+foreach(InputFile ${InputFiles})
+  configure_file("${InputFile}" "./" COPYONLY)
+endforeach()
+
+add_executable(blatt1 blatt1.cpp)
+target_link_libraries(blatt1 CFD)

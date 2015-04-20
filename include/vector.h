@@ -34,8 +34,6 @@ public:
 	void print();
 	void write(const std::string & filename);
 	void writeVTKfile(const std::string & filename);
-
-	print(const std::string& prefix, const std::string& delim="\n") const;
 };
 
 bool operator==(const Vector & v1, const Vector & v2);
