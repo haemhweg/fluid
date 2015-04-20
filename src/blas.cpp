@@ -1,12 +1,13 @@
-#include <stdexcept>
+#include <algorithm>
+#include <cassert>
 
 #include "vector.h"
 #include "matrix.h"
 #include "real.h"
 
-Vector * axpy(REAL a, const Vector & x, const Vector & y)
+Vector axpy(REAL a, const Vector & x, const Vector & y)
 {
-	return *(a * x) + y;
+	return (a * x) + y;
 }
 
 REAL dot(const Vector & x, const Vector & y)
@@ -21,32 +22,29 @@ REAL nrm2(const Vector & x)
 
 void copy(const Vector & source, Vector & dest)
 {
-	dest.copy(source);
+  std::copy(std::begin(source), std::end(source), std::begin(dest));
 }
 
-Vector * scal(REAL a, Vector & x)
+Vector scal(REAL a, Vector & x)
 {
 	return a * x;
 }
 
-Vector * gemv(REAL a, const Matrix & A, const Vector & x, REAL b, const Vector & y)
+Vector gemv(REAL a, const Matrix & A, const Vector & x, REAL b, const Vector & y)
 {
 
-	if (A.getCols() != x.getSize() || A.getRows() != y.getSize())
-	{
-		throw std::runtime_error("Illegal operation on incompatible structures.");
-	}
-
-	return *(a * (*(A * x))) + *(b * y);
+  assert(A.getCols() != x.getSize() || A.getRows() != y.getSize());
+  
+  return a * (A * x) + (b * y);
 
 }
 
-Matrix * scal2Dfield(REAL a, Matrix & X)
+Matrix scal2Dfield(REAL a, Matrix & X)
 {
 	return a * X;
 }
 
-Matrix * axpy2Dfield(REAL a, const Matrix & X, const Matrix & Y)
+Matrix axpy2Dfield(REAL a, const Matrix & X, const Matrix & Y)
 {
-	return *(a * X) + Y;
+	return (a * X) + Y;
 }

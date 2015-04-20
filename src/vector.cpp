@@ -1,193 +1,131 @@
 #include <string>
 #include <iostream>
-#include <stdlib.h>
-#include <stdexcept>
-#include <iostream>
 #include <iomanip>
 #include <string>
 #include <fstream>
 #include <cmath>
+#include <algorithm>
+#include <cassert>
 
 #include "real.h"
 #include "vector.h"
 
 void Vector::allocateData()
 {
-	_data = new REAL[size];
+  _data = new REAL[size];
 }
 
-Vector::Vector(size_t size_) : size(size_)
+Vector::Vector(const size_t size_, const REAL val) : _data(nullptr), size(size_)
 {
-	allocateData();
+  allocateData();
+  fill(val);
+}
+
+Vector::Vector(Vector&& rhs) : _data(rhs._data), size(rhs.size)
+{
+  rhs._data = nullptr;
+  rhs.size = 0;
 }
 
 Vector::~Vector()
 {
-	delete [] _data;
+  if(size) delete [] _data;
 }
 
-void Vector::fill(REAL value)
+void Vector::fill(REAL val)
 {
-	for (size_t i = 0; i < size; i++)
-	{
-		_data[i] = value;
-	}
+  std::fill_n(_data, size, val);
 }
 
-bool operator==(const Vector & v1, const Vector & v2)
-{
 
-	if (v1.getSize() != v2.getSize())
-	{
-		throw std::runtime_error("Illegal comparison of incompatible vectors");
-	}
-
-	for (size_t i = 0; i < v1.getSize(); i++)
-	{
-		if (v1.get(i) != v2.get(i))
-		{
-			return false;
-		}
-	}
-
-	return true;
-
-}
-
-Vector * operator*(REAL a, const Vector & v)
-{
-
-	Vector * r = new Vector(v.getSize());
-
-	for (size_t i = 0; i < v.getSize(); i++)
-	{
-		r->set(i, v.get(i) * a);
-	}
-
-	return r;
-
-}
-
-REAL operator*(const Vector & v1, const Vector & v2)
-{
-
-	if (v1.getSize() != v2.getSize())
-	{
-		throw std::runtime_error("Illegal operation on incompatible vectors");
-	}
-
-	REAL sum = 0;
-
-	for (size_t i = 0; i < v1.getSize(); i++)
-	{
-		sum += v1.get(i) * v2.get(i);
-	}
-
-	return sum;
-
-}
-
-Vector * operator+(const Vector & v1, const Vector & v2)
-{
-	
-	if (v1.getSize() != v2.getSize())
-	{
-		throw std::runtime_error("Illegal operation on incompatible vectors");
-	}
-
-	Vector * r = new Vector(v1.getSize());
-
-	for (size_t i = 0; i < v1.getSize(); i++)
-	{
-		r->set(i, v1.get(i) + v2.get(i));
-	}
-
-	return r;
-
-}
 
 REAL Vector::nrm2() const
 {	
-	/* Kinda works */
+  /* Kinda works */
   return sqrt((*this) * (*this));
 }
 
 size_t Vector::getSize() const
 {
-	return size;
+  return size;
 }
 
-void Vector::apply(const std::function<REAL(REAL)> & f)
+REAL Vector::at(size_t i) const
 {
-	for (size_t i = 0; i < size; i++)
+  return _data[i];
+}
+
+REAL& Vector::at(size_t i)
+{
+  return _data[i];
+}
+
+void Vector::print(const std::string& descr) const
+{
+  std::cout << std::endl;
+  std::cout << descr << std::fixed << std::setprecision(1) << std::setw(7) 
+	    << std::left<< std::endl;;
+
+  for (size_t i = 0; i < size; i++)
+    {
+      std::cout << "\t" << _data[i] << std::endl;
+    }
+}
+
+bool operator==(const Vector & v1, const Vector & v2)
+{
+  assert(v1.getSize() == v2.getSize());
+
+  for (size_t i = 0; i < v1.getSize(); i++)
+    {
+      if (v1.at(i) != v2.at(i))
 	{
-		_data[i] = f(_data[i]);
+	  return false;
 	}
-}
+    }
 
-REAL Vector::get(size_t N) const
-{
-	return _data[N];
-}
-
-void Vector::set(size_t N, REAL v)
-{
-	_data[N] = v;
-}
-
-void Vector::copy(const Vector & x)
-{
-
-	if (size != x.size)
-	{
-		throw std::runtime_error("Illegal copy of incompatible vectors.");
-	}
-
-	for (size_t i = 0; i < size; i++)
-	{
-		_data[i] = x._data[i];
-	}
+  return true;
 
 }
 
-void Vector::print()
+Vector operator*(REAL a, const Vector & v)
 {
 
-	std::cout << std::endl;
-	std::cout << std::setprecision(2) << std::setw(7);
+  Vector r{v.getSize()};
 
-	for (size_t i = 0; i < size; i++)
-	{
-		std::cout << _data[i] << std::endl;
-	}
+  for (size_t i = 0; i < v.getSize(); i++)
+    {
+      r.at(i) = v.at(i) * a;
+    }
+
+  return r;
 
 }
 
-void Vector::write(const std::string & filename)
+REAL operator*(const Vector & v1, const Vector & v2)
 {
-  std::ofstream fs(filename, std::ios::binary);
+  assert(v1.getSize() == v2.getSize());
 
-	fs << size << std::endl;
+  REAL sum = 0;
 
-	for (size_t i = 0; i < size; i++)
-	{
-		fs << _data[i] << std::endl;
-	}
+  for (size_t i = 0; i < v1.getSize(); i++)
+    {
+      sum += v1.at(i) * v2.at(i);
+    }
+
+  return sum;
 }
 
-Vector::Vector(const std::string & filename)
-{
-  std::ifstream fs(filename, std::ios::binary);
+Vector operator+(const Vector & v1, const Vector & v2)
+{	
+  assert(v1.getSize() == v2.getSize());
 
-	fs >> size;
+  Vector r{v1.getSize()};
 
-	allocateData();
+  for (size_t i = 0; i < v1.getSize(); i++)
+    {
+      r.at(i) = v1.at(i) + v2.at(i);
+    }
 
-	REAL d;
-
-	size_t i = 0;
-	while (fs >> d)
-	{
-		_data[i++] = d;
-	}
+  return r;
 }

@@ -1,12 +1,10 @@
-#include <stdlib.h>
-#include <time.h>
-#include <stdexcept>
-#include <functional>
-#include <iostream>
+#include <cassert>
 #include <iomanip>
+#include <iostream>
 #include <fstream>
 #include <string>
-#include <ios>
+#include <algorithm>
+#include <iterator>
 
 #include "real.h"
 #include "matrix.h"
@@ -14,16 +12,21 @@
 
 void Matrix::allocateData()
 {
-  _data = new REAL*[M];
-  for (size_t i = 0; i < M; i++)
-    {
-      _data[i] = new REAL[N];
-    }
+  _data = new REAL[M*N];
 }
 
-Matrix::Matrix(size_t M_, size_t N_) : M(M_), N(N_)
+Matrix::Matrix(const size_t M_, const size_t N_, const REAL val) 
+  : _data(nullptr), M(M_), N(N_)
 {
   allocateData();
+  fill(val);
+}
+
+Matrix::Matrix(Matrix&& rhs) : _data(rhs._data), M(rhs.M), N(rhs.N)
+{
+  rhs._data = nullptr;
+  rhs.M = 0;
+  rhs.N = 0;
 }
 
 Matrix::Matrix(const std::string & filename)
@@ -40,70 +43,31 @@ Matrix::Matrix(const std::string & filename)
   allocateData();
 
   for(size_t i=0; i<M; ++i) {
-    fs.read((char *)_data[i], N*real_size);
+    for(size_t j=0; j<N; ++j) {
+      fs.read((char *)&_data[j*M+i], real_size);
+    }
   }
 }
 
 Matrix::~Matrix()
 {
-  for(size_t i=0; i<M; ++i) {
-    delete [] _data[i];
-  }
-  delete _data;
+  if(N && M) delete [] _data;
 }
 
-void Matrix::fill(REAL value)
+void Matrix::fill(REAL val)
 {
-  for (size_t i = 0; i < M; i++)
-    {
-      for (size_t j = 0; j < N; j++)
-	{
-	  _data[i][j] = value;
-	}
-    }
+  std::fill_n(_data, M*N, val);
 }
 
-void Matrix::fillrand()
+
+REAL Matrix::at(size_t i, size_t j) const
 {
-  srand(time(NULL));
-  for (size_t i = 0; i < M; i++)
-    {
-      for (size_t j = 0; j < N; j++)
-	{
-	  _data[i][j] = rand();
-	}
-    }
+  return _data[j*M+i];
 }
 
-bool operator==(const Matrix & v1, const Matrix & v2)
+REAL& Matrix::at(size_t i, size_t j)
 {
-
-  if (v1.getRows() != v2.getRows() || v1.getCols() != v2.getCols())
-    {
-      throw std::runtime_error("Illegal comparison of matrices");
-    }
-
-  for (size_t i = 0; i < v1.getRows(); i++)
-    {
-      for (size_t j = 0; j < v1.getCols(); j++)
-	{
-	  if (v1.get(i, j) != v2.get(i, j))
-	    {
-	      return false;
-	    }
-	}
-    }
-  return true;
-}
-
-REAL Matrix::get(size_t M_, size_t N_) const
-{
-  return _data[M_][N_];
-}
-
-void Matrix::set(size_t M_, size_t N_, REAL v)
-{
-  _data[M_][N_] = v;
+  return _data[j*M+i];
 }
 
 size_t Matrix::getRows() const
@@ -116,33 +80,25 @@ size_t Matrix::getCols() const
   return N;
 }
 
-void Matrix::apply(const std::function<REAL(REAL)> & f)
-{
-  for (size_t i = 0; i < M; i++)
-    {
-      for (size_t j = 0; j < N; j++)
-	{
-	  _data[i][j] = f(_data[i][j]);
-	}
-    }
-}
-
-void Matrix::print()
+void Matrix::print(const std::string& descr) const
 {
   std::cout << std::endl;
-  std::cout << std::setprecision(2) << std::setw(7);
+  std::cout << descr << std::fixed << std::setprecision(1) << std::setw(7) 
+	    << std::left<< std::endl;
 
   for (size_t i = 0; i < M; i++)
     {
       for (size_t j = 0; j < N; j++)
 	{
-	  std::cout << _data[i][j] << "\t";
+	  std::cout << _data[j*M+i] << "\t";
 	}
       std::cout << std::endl;
     }
+
+  std::cout << std::setprecision(6);
 }
 
-void Matrix::write(const std::string & filename)
+void Matrix::writeBinary(const std::string & filename) const
 {
   std::ofstream fs(filename, std::ios::binary);
   
@@ -151,15 +107,14 @@ void Matrix::write(const std::string & filename)
   fs.write((char *)&M, sizeof(size_t));
   fs.write((char *)&N, sizeof(size_t));
 
-  for (size_t i = 0; i < M; i++)
-    {
-      fs.write((char *)_data[i], N*real_size);
-    }
+  fs.write((char *)_data, M*N*real_size);
 }
 
-void Matrix::writeVTKfile(const std::string & filename, const std::string& descr, const double dx, const double dy)
+void Matrix::writeVTK(const std::string & filename, const std::string& descr, const double dx, const double dy) const
 {
   std::ofstream fs(filename);
+
+  fs << std::fixed << std::setprecision(6);
 
   fs << "# vtk DataFile Version 3.0\n"
      << "Scalar Field\n"
@@ -183,11 +138,11 @@ void Matrix::writeVTKfile(const std::string & filename, const std::string& descr
      << "POINT_DATA " << M*N << "\n"
      << "SCALARS " << descr << " double 1\n"
      << "LOOKUP_TABLE default\n";
+  
+  fs << std::scientific;
 
-  for(size_t j=0; j<N; ++j) {
-    for(size_t i=0; i<M; ++i) {
-      fs << _data[i][j] << "\n";
-    }
+  for(size_t i=0; i<M*N; ++i) {
+    fs << _data[i] << "\n";
   }
 
   fs << std::endl;    
@@ -200,6 +155,10 @@ void writeVectorFieldVTK(const std::string& filename, const std::string& descr,
   std::ofstream fs(filename);
 
   size_t M = U.getRows(), N = U.getCols();
+
+  assert(M == V.getRows() && N == V.getCols());
+
+  fs << std::fixed<< std::setprecision(6);
 
   fs << "# vtk DataFile Version 3.0\n"
      << "Vector Field\n"
@@ -223,74 +182,69 @@ void writeVectorFieldVTK(const std::string& filename, const std::string& descr,
      << "POINT_DATA " << M*N << "\n"
      << "VECTORS " << descr << " double\n";
 
-  for(size_t j=0; j<N; ++j) {
-    for(size_t i=0; i<M; ++i) {
-      fs << U.get(i,j) << " " << V.get(i,j) << " 0.0\n";
-    }
+  fs << std::scientific;
+  
+  const REAL* u = U.begin();
+  const REAL* v = V.begin();
+  for(size_t i=0; i<M*N; ++i) {
+    fs << u[i] << " " << v[i] << " 0.0\n";
   }
 
   fs << std::endl;  
 }
 
-Vector * operator*(const Matrix & A, const Vector & v)
+bool operator==(const Matrix & A1, const Matrix & A2)
 {
-
-  if (v.getSize() != A.getCols())
-    {
-      throw std::runtime_error("Illegal operation on incompatible structures.");
-    }
-
-  Vector * r = new Vector(v.getSize());
-
-  for (size_t i = 0; i < A.getRows(); i++)
-    {
-      REAL p = 0;
-      for (size_t j = 0; j < A.getCols(); j++)
-	{
-	  p += A.get(i, j) * v.get(j);
-	}
-      r->set(i, p);
-    }
-
-  return r;
-
+  assert(A1.getRows() == A2.getRows() && A1.getCols() == A2.getCols());
+  
+  return std::equal(std::begin(A1), std::end(A1), std::begin(A2), REAL_equal);
 }
 
-Matrix * operator*(REAL a, const Matrix & A)
+Vector operator*(const Matrix & A, const Vector & v)
 {
+  assert(v.getSize() == A.getCols());
 
-  Matrix * B = new Matrix(A.getRows(), A.getCols());
+  Vector r{v.getSize()};
 
   for (size_t i = 0; i < A.getRows(); i++)
     {
       for (size_t j = 0; j < A.getCols(); j++)
 	{
-	  B->set(i, j, a * A.get(i, j));
+	  r.at(i) += A.at(i, j) * v.at(j);
+	}
+    }
+  
+  return r;
+}
+
+Matrix operator*(REAL a, const Matrix & A)
+{
+  Matrix B{A.getRows(), A.getCols()};
+
+  for (size_t i = 0; i < A.getRows(); i++)
+    {
+      for (size_t j = 0; j < A.getCols(); j++)
+	{
+	  B.at(i, j) =  a * A.at(i, j);
 	}
     }
 
   return B;
-
 }
 
-Matrix * operator+(const Matrix & A1, const Matrix & A2)
+Matrix operator+(const Matrix & A1, const Matrix & A2)
 {
+  assert(A1.getRows() == A2.getRows() && A1.getCols() == A2.getCols());
 
-  if (A1.getRows() != A2.getRows() || A1.getCols() != A2.getCols())
-    {
-      throw std::runtime_error("Illegal operation on incompatible matrices.");
-    }
-
-  Matrix * B = new Matrix(A1.getRows(), A1.getCols());
+  Matrix B{A1.getRows(), A1.getCols()};
 
   for (size_t i = 0; i < A1.getRows(); i++)
     {
       for (size_t j = 0; j < A1.getCols(); j++)
 	{
-	  B->set(i, j, A1.get(i, j) + A2.get(i, j));
+	  B.at(i, j) = A1.at(i, j) + A2.at(i, j);
 	}
     }
 
   return B;
-
 }

@@ -13,32 +13,33 @@ private:
 	size_t size;
 	void allocateData();
 public:
-	Vector(size_t size);
-	/**
-	* Since we write size of the matrix in the file, we can't instaniate it on its own without reading it before.
-	* So instead of read function we use appropriate constructor.
-	*/
-	Vector(const std::string & filename);
+	Vector(const size_t size, const REAL val=REAL(0.));
+	Vector(Vector&& rhs);
 	~Vector();
 	/* Fill with REAL values */
-	void fill(REAL value);
-	/* To make the interface more abstract (for instance, to enable usage of lambda functions), use std::function (exhausting workaround with templates was futile). */
-	void apply(const std::function<REAL(REAL)> &);
+	void fill(const REAL value);
+
 	size_t getSize() const;
-	/* Copy vector x into this vector */
-	void copy(const Vector & x);
+
 	/* Since _data is private, use getters and setters */
-	REAL get(size_t N) const;
-	void set(size_t N, REAL v);
+	REAL at(const size_t N) const;
+	REAL& at(const size_t N);
+
+	REAL* begin() { return _data; }
+	REAL* end() { return _data+size; }
+	const REAL* begin() const { return _data; }
+	const REAL* end() const { return _data+size; }
+
 	REAL nrm2() const;
-	void print();
-	void write(const std::string & filename);
-	void writeVTKfile(const std::string & filename);
+
+	void print(const std::string& descr) const;
+	void write(const std::string & filename) const;
+	void writeVTKfile(const std::string & filename) const;
 };
 
 bool operator==(const Vector & v1, const Vector & v2);
-Vector * operator*(REAL a, const Vector & v);
-Vector * operator+(const Vector & v1, const Vector & v2);
+Vector operator*(const REAL a, const Vector & v);
+Vector operator+(const Vector & v1, const Vector & v2);
 REAL operator*(const Vector & v1, const Vector & v2);
 
 #endif
