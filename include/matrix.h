@@ -20,12 +20,15 @@ private:
 public:
   Matrix(size_t M, size_t N, const REAL val=REAL(0.));
   Matrix(Matrix&& rhs);
+  Matrix() : Matrix(0, 0, 0) {}
   /**
    * Since we write size of the matrix in the file, we can't instaniate it on its own without reading it before.
    * So instead of read function we use appropriate constructor.
    */
   Matrix(const std::string & filename);
   ~Matrix();
+
+  Matrix & operator=(Matrix&&);
 
   void fill(REAL value);
 

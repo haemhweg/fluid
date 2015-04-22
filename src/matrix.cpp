@@ -253,3 +253,17 @@ REAL Matrix::getMax()
 {
 	return *std::max_element(_data, _data + M*N);
 }
+
+Matrix & Matrix::operator=(Matrix&& A)
+{
+	_data = A._data;
+	M = A.M;
+	N = A.N;
+		
+	A._data = nullptr;
+	A.M = 0;
+	A.N = 0;
+			
+	return *this;
+
+}

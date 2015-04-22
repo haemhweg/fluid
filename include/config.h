@@ -41,7 +41,7 @@ public:
 		REAL GX, GY;
 		REAL UI, VI, PI;
 	};
-	
+
 	geo _geo;
 	time _time;
 	pressure _pressure;
