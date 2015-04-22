@@ -248,3 +248,8 @@ Matrix operator+(const Matrix & A1, const Matrix & A2)
 
   return B;
 }
+
+REAL Matrix::getMax()
+{
+	return *std::max_element(_data, _data + M*N);
+}
