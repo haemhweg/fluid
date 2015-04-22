@@ -7,12 +7,5 @@ RELEASE/*
 !.gitignore
 !Makefile
 !*.vtk
-!*.sln
-!*.vcxproj
-!*.vtk.filters
-!*.suo
-!*.sdf
-!*.opensdf
-!*.vtk
 !*.dat
 !CMakeLists.txt
