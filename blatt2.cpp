@@ -5,7 +5,7 @@
 #include "matrix.h"
 #include "config.h"
 
-#include "differences.cpp"
+#include "differences.h"
 
 void initUVP(Config::geo geoConfig, Config::constants constantsConfig, Matrix & U, Matrix & V, Matrix & P)
 {
