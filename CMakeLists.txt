@@ -32,11 +32,12 @@ add_library(CFD ${INCLUDE} ${SRC})
 ## add input
 
 file(GLOB InputFiles ${PROJECT_SOURCE_DIR}/input/*.vtk
-                     ${PROJECT_SOURCE_DIR}/input/*.dat)
+                     ${PROJECT_SOURCE_DIR}/input/*.dat
+		     ${PROJECT_SOURCE_DIR}/input/config)
 
 foreach(InputFile ${InputFiles})
   configure_file("${InputFile}" "./" COPYONLY)
 endforeach()
 
-add_executable(blatt1 blatt1.cpp)
-target_link_libraries(blatt1 CFD)
+add_executable(blatt2 blatt2.cpp)
+target_link_libraries(blatt2 CFD)

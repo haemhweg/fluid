@@ -1,0 +1,21 @@
+imax 50
+jmax 50
+xlength 10
+ylength 10
+
+delt 0.02
+t_end 2.0
+tau 0.5
+del_vec 2.0
+
+eps 1e-3
+omega 1.7
+alpha 0.5
+itmax 100
+
+GX 0.0
+GY 0.0
+RE 0.0
+UI 0.0
+VI 0.0
+PI 0.0
