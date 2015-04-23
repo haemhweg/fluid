@@ -15,10 +15,10 @@ class Matrix
 private:
   
   REAL* _data; //!< Enträge sind Spaltenweise gespeichert
-  size_t M, N;
+  unsigned M, N;
   void allocateData();
 public:
-  Matrix(size_t M, size_t N, const REAL val=REAL(0.));
+  Matrix(const unsigned M, const unsigned N, const REAL val=REAL(0.));
   Matrix(Matrix&& rhs);
   Matrix() : Matrix(0, 0, 0) {}
   /**
@@ -30,16 +30,16 @@ public:
 
   Matrix & operator=(Matrix&&);
 
-  void fill(REAL value);
+  void fill(const REAL value);
 
   /**
    * Since we want to encapsulate _data, we need getters and setters. Is design alright (don't know whether C++-compatible)?
    */
-  REAL at(size_t i, size_t j) const;
-  REAL& at(size_t i, size_t j);
+  REAL at(const unsigned i, const unsigned j) const;
+  REAL& at(const unsigned i, const unsigned j);
 
-  size_t getRows() const;
-  size_t getCols() const;
+  unsigned getRows() const;
+  unsigned getCols() const;
 
   REAL* begin() { return _data; }
   REAL* end() { return _data+N*M; }

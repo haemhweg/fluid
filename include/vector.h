@@ -10,20 +10,20 @@ class Vector
 private:
 	/* It tends to be a bad idea to make non-const fields public because it then becomes hard to force error checking constraints and/or add side-effects to value changes in the future. */
 	REAL* _data;
-	size_t size;
+	unsigned size;
 	void allocateData();
 public:
-	Vector(const size_t size, const REAL val=REAL(0.));
+	Vector(const unsigned size, const REAL val=REAL(0.));
 	Vector(Vector&& rhs);
 	~Vector();
 	/* Fill with REAL values */
 	void fill(const REAL value);
 
-	size_t getSize() const;
+	unsigned getSize() const;
 
 	/* Since _data is private, use getters and setters */
-	REAL at(const size_t N) const;
-	REAL& at(const size_t N);
+	REAL at(const unsigned N) const;
+	REAL& at(const unsigned N);
 
 	REAL* begin() { return _data; }
 	REAL* end() { return _data+size; }

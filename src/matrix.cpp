@@ -15,7 +15,7 @@ void Matrix::allocateData()
   _data = new REAL[M*N];
 }
 
-Matrix::Matrix(const size_t M_, const size_t N_, const REAL val) 
+Matrix::Matrix(const unsigned M_, const unsigned N_, const REAL val) 
   : _data(nullptr), M(M_), N(N_)
 {
   allocateData();
@@ -33,17 +33,17 @@ Matrix::Matrix(const std::string & filename)
 {
   std::ifstream fs(filename, std::ios::binary);
 
-  size_t real_size = sizeof(REAL);
+  unsigned real_size = sizeof(REAL);
 
-  fs.read((char *)&M, sizeof(size_t));
-  fs.read((char *)&N, sizeof(size_t));
+  fs.read((char *)&M, sizeof(unsigned));
+  fs.read((char *)&N, sizeof(unsigned));
 
   std::cout << M << " " << N << std::endl;
 
   allocateData();
 
-  for(size_t i=0; i<M; ++i) {
-    for(size_t j=0; j<N; ++j) {
+  for(unsigned i=0; i<M; ++i) {
+    for(unsigned j=0; j<N; ++j) {
       fs.read((char *)&_data[j*M+i], real_size);
     }
   }
@@ -60,22 +60,22 @@ void Matrix::fill(REAL val)
 }
 
 
-REAL Matrix::at(size_t i, size_t j) const
+REAL Matrix::at(unsigned i, unsigned j) const
 {
   return _data[j*M+i];
 }
 
-REAL& Matrix::at(size_t i, size_t j)
+REAL& Matrix::at(unsigned i, unsigned j)
 {
   return _data[j*M+i];
 }
 
-size_t Matrix::getRows() const
+unsigned Matrix::getRows() const
 {
   return M;
 }
 
-size_t Matrix::getCols() const
+unsigned Matrix::getCols() const
 {
   return N;
 }
@@ -86,9 +86,9 @@ void Matrix::print(const std::string& descr) const
   std::cout << descr << std::fixed << std::setprecision(1) << std::setw(7) 
 	    << std::left<< std::endl;
 
-  for (size_t i = 0; i < M; i++)
+  for (unsigned i = 0; i < M; i++)
     {
-      for (size_t j = 0; j < N; j++)
+      for (unsigned j = 0; j < N; j++)
 	{
 	  std::cout << _data[j*M+i] << "\t";
 	}
@@ -102,10 +102,10 @@ void Matrix::writeBinary(const std::string & filename) const
 {
   std::ofstream fs(filename, std::ios::binary);
   
-  size_t real_size = sizeof(REAL);
+  unsigned real_size = sizeof(REAL);
 
-  fs.write((char *)&M, sizeof(size_t));
-  fs.write((char *)&N, sizeof(size_t));
+  fs.write((char *)&M, sizeof(unsigned));
+  fs.write((char *)&N, sizeof(unsigned));
 
   fs.write((char *)_data, M*N*real_size);
 }
@@ -123,13 +123,13 @@ void Matrix::writeVTK(const std::string & filename, const std::string& descr, co
      << "DIMENSIONS " << M << " " << N << " 1\n"
      << "X_COORDINATES " << M << " double\n";
 
-  for(size_t i=0; i<M; ++i) {
+  for(unsigned i=0; i<M; ++i) {
     fs << dx*i << " ";
   }
 
   fs << "\nY_COORDINATES " << N << " double\n";
   
-  for(size_t j=0; j<N; ++j) {
+  for(unsigned j=0; j<N; ++j) {
     fs << dy*j << " ";
   }
 
@@ -141,7 +141,7 @@ void Matrix::writeVTK(const std::string & filename, const std::string& descr, co
   
   fs << std::scientific;
 
-  for(size_t i=0; i<M*N; ++i) {
+  for(unsigned i=0; i<M*N; ++i) {
     fs << _data[i] << "\n";
   }
 
@@ -154,7 +154,7 @@ void writeVectorFieldVTK(const std::string& filename, const std::string& descr,
 {
   std::ofstream fs(filename);
 
-  size_t M = U.getRows(), N = U.getCols();
+  unsigned M = U.getRows(), N = U.getCols();
 
   assert(M == V.getRows() && N == V.getCols());
 
@@ -167,13 +167,13 @@ void writeVectorFieldVTK(const std::string& filename, const std::string& descr,
      << "DIMENSIONS " << M << " " << N << " 1\n"
      << "X_COORDINATES " << M << " double\n";
 
-  for(size_t i=0; i<M; ++i) {
+  for(unsigned i=0; i<M; ++i) {
     fs << dx*i << " ";
   }
 
   fs << "\nY_COORDINATES " << N << " double\n";
   
-  for(size_t j=0; j<N; ++j) {
+  for(unsigned j=0; j<N; ++j) {
     fs << dy*j << " ";
   }
 
@@ -186,7 +186,7 @@ void writeVectorFieldVTK(const std::string& filename, const std::string& descr,
   
   const REAL* u = U.begin();
   const REAL* v = V.begin();
-  for(size_t i=0; i<M*N; ++i) {
+  for(unsigned i=0; i<M*N; ++i) {
     fs << u[i] << " " << v[i] << " 0.0\n";
   }
 
@@ -206,9 +206,9 @@ Vector operator*(const Matrix & A, const Vector & v)
 
   Vector r{v.getSize()};
 
-  for (size_t i = 0; i < A.getRows(); i++)
+  for (unsigned i = 0; i < A.getRows(); i++)
     {
-      for (size_t j = 0; j < A.getCols(); j++)
+      for (unsigned j = 0; j < A.getCols(); j++)
 	{
 	  r.at(i) += A.at(i, j) * v.at(j);
 	}
@@ -221,9 +221,9 @@ Matrix operator*(REAL a, const Matrix & A)
 {
   Matrix B{A.getRows(), A.getCols()};
 
-  for (size_t i = 0; i < A.getRows(); i++)
+  for (unsigned i = 0; i < A.getRows(); i++)
     {
-      for (size_t j = 0; j < A.getCols(); j++)
+      for (unsigned j = 0; j < A.getCols(); j++)
 	{
 	  B.at(i, j) =  a * A.at(i, j);
 	}
@@ -238,9 +238,9 @@ Matrix operator+(const Matrix & A1, const Matrix & A2)
 
   Matrix B{A1.getRows(), A1.getCols()};
 
-  for (size_t i = 0; i < A1.getRows(); i++)
+  for (unsigned i = 0; i < A1.getRows(); i++)
     {
-      for (size_t j = 0; j < A1.getCols(); j++)
+      for (unsigned j = 0; j < A1.getCols(); j++)
 	{
 	  B.at(i, j) = A1.at(i, j) + A2.at(i, j);
 	}
