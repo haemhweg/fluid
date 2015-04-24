@@ -60,7 +60,7 @@ int main()
 	Matrix U();
 	Matrix V();
 	Matrix P(52,52, 0);
-	Matrix RHS(52,52, 1000);
+	Matrix RHS(52,52, 10);
 	Matrix F();
 	Matrix G();
 
