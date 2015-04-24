@@ -3,7 +3,6 @@ jmax 50
 xlength 10
 ylength 10
 
-delt 0.02
 t_end 2.0
 tau 0.5
 del_vec 2.0
@@ -11,7 +10,7 @@ del_vec 2.0
 eps 1e-3
 omega 1.7
 alpha 0.5
-itmax 100
+itmax 1000
 
 GX 0.0
 GY 0.0
