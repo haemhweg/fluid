@@ -43,9 +43,7 @@ void computeFG(Config::geo geoConfig, Config::time timeConfig, Config::constants
 	// for (size_t i = 1; i < geoConfig.imax; ++i) {
 	// 	for (size_t j = 1; j < geoConfig.jmax + 1; ++j)
 	// 	{
-	// 		F.at(i, j) = U.at(i, j) + delt 
-	// 		  * (1 / Re * ((d2Udx2(geoConfig, constantsConfig, U, i, j) + (d2Udy2(geoConfig, constantsConfig, U, i, j))) 
-	// 			       - dU2dx(geoConfig, constantsConfig, U, i, j) - dUVdx(geoConfig, constantsConfig, U, V, i, j) + constantsConfig.GX);
+	// 		F.at(i, j) = U.at(i, j) + delt * (1 / Re * (d2Udx2(geoConfig, constantsConfig, U, i, j) + (d2Udy2(geoConfig, constantsConfig, U, i, j))) - dU2dx(geoConfig, constantsConfig, U, i, j) - dUVdx(geoConfig, constantsConfig, U, V, i, j) + constantsConfig.GX);
 	// 	}
 	// }
 

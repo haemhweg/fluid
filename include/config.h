@@ -20,7 +20,6 @@ struct Config
   struct time
   {
     REAL t_end;
-    REAL delt;
     REAL tau;
     REAL del_vec;
   };
