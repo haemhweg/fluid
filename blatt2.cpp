@@ -9,6 +9,8 @@
 
 #include "solvers.h"
 
+#include "velocity.h"
+
 void initUVP(Config::geo geoConfig, Config::constants constantsConfig, Matrix & U, Matrix & V, Matrix & P)
 {
 	// U = Matrix(geoConfig.imax + 2, geoConfig.jmax + 2, constantsConfig.UI);
@@ -57,16 +59,20 @@ int main()
 	/**
 	 * Falls man Matrizen aus diesem Scope in einer Subroutine erstellen will, so müssen hier nur Pointer definiert sein.
 	 */
-	Matrix U();
-	Matrix V();
-	Matrix P(52,52, 0);
-	Matrix RHS(52,52, 10);
-	Matrix F();
-	Matrix G();
 
 	Config conf{"config"};
 
+	Matrix U(52,52,0);
+	Matrix V(52,52,0);
+	Matrix P(52,52, 0);
+	Matrix RHS(52,52, 10);
+	Matrix F(52,52,10);
+	Matrix G(52,5210);
+
+	
 	auto it_res = SOR_Poisson(P, RHS, conf._geo, conf._solver);
 
 	std::cout << it_res.first << " " << it_res.second << std::endl;
+
+	compNewVelocity(conf._geo, 0.02, U, V, F, G, P);
 }

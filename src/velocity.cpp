@@ -1,4 +1,7 @@
 
+#include "config.h"
+#include "matrix.h"
+#include "real.h"
 #include "velocity.h"
 
 void compNewVelocity(const Config::geo geoConfig, const REAL delt, Matrix& U, Matrix& V,
@@ -10,15 +13,15 @@ void compNewVelocity(const Config::geo geoConfig, const REAL delt, Matrix& U, Ma
   
   // Set inner values of U
   for(unsigned i=1; i<geoConfig.imax; ++i){
-    for(unsigned j=1; i<geoConfig.jmax+1; ++j){
-      U.at(i,j) = F.at(i,j) - delt/delx(P.at(i+1,j) - P.at(i,j));
+    for(unsigned j=1; j<geoConfig.jmax+1; ++j){
+      U.at(i,j) = F.at(i,j) - delt/delx * (P.at(i+1,j) - P.at(i,j));
     }
   }
 
   // Set inner values of V
   for(unsigned i=1; i<geoConfig.imax+1; ++i){
-    for(unsigned j=1; i<geoConfig.jmax; ++j){
-      V.at(i,j) = G.at(i,j) - delt/dely(P.at(i,j+1) - P.at(i,j));
+    for(unsigned j=1; j<geoConfig.jmax; ++j){
+      V.at(i,j) = G.at(i,j) - delt/dely * (P.at(i,j+1) - P.at(i,j));
     }
   }
 
