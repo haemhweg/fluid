@@ -59,14 +59,14 @@ int main()
 	 */
 	Matrix U();
 	Matrix V();
-	Matrix P(52,52, 10);
+	Matrix P(52,52, 0);
 	Matrix RHS(52,52, 1000);
 	Matrix F();
 	Matrix G();
 
-	Config conf{};
+	Config conf{"config"};
 
-	auto it_res = SOR_Poisson(P, RHS, conf._geo, conf._pressure);
+	auto it_res = SOR_Poisson(P, RHS, conf._geo, conf._solver);
 
 	std::cout << it_res.first << " " << it_res.second << std::endl;
 }
