@@ -1,17 +1,22 @@
+#include <cmath>
+
 #include "real.h"
-#include "config.h"
-#include "matrix.h"
 #include "differences.h"
 
-REAL dU2dx(Config::geo geoConfig, Config::constants constantsConfig, Matrix U, unsigned i, unsigned j) { return 0; }
-REAL dUVdy(Config::geo geoConfig, Config::constants constantsConfig, Matrix U, Matrix V, unsigned i, unsigned j) { return 0; }
-REAL d2Udx2(Config::geo geoConfig, Config::constants constantsConfig, Matrix U, unsigned i, unsigned j) { return 0; }
-REAL d2Udy2(Config::geo geoConfig, Config::constants constantsConfig, Matrix U, unsigned i, unsigned j) { return 0; }
+REAL d2f(const REAL h, const REAL f_r, const REAL f_m, const REAL f_l)
+{
+  return (f_r - 2*f_m + f_l)/h/h;
+}
 
-REAL dUVdx(Config::geo geoConfig, Config::constants constantsConfig, Matrix U, Matrix V, unsigned i, unsigned j) { return 0; }
-REAL dV2dy(Config::geo geoConfig, Config::constants constantsConfig, Matrix V, unsigned i, unsigned j) { return 0; }
-REAL d2Vdx2(Config::geo geoConfig, Config::constants constantsConfig, Matrix V, unsigned i, unsigned j) { return 0; }
-REAL d2Vdy2(Config::geo geoConfig, Config::constants constantsConfig, Matrix V, unsigned i, unsigned j) { return 0; }
+REAL df2(const REAL h, const REAL alpha, const REAL f_r, const REAL f_m, const REAL f_l)
+{
+  return ( std::pow((f_m+f_r)/2,2) - std::pow((f_m+f_l)/2,2) )/h
+    +alpha/h * ( std::fabs(f_m+f_r)*(f_m-f_r)/4 - std::fabs(f_m+f_l)*(f_l-f_m)/4 );
+} 
 
-REAL dpdx(Config::geo geoConfig, Config::constants constantsConfig, Matrix P, unsigned i, unsigned j) { return 0; }
-REAL dpdy(Config::geo geoConfig, Config::constants constantsConfig, Matrix P, unsigned i, unsigned j) { return 0; }
+REAL dfg(const REAL h, const REAL alpha, const REAL f_r, const REAL f_m, const REAL f_l,
+	 const REAL g_ll, const REAL g_lm, const REAL g_ul, const REAL g_um)
+{
+  return ( (g_lm+g_um)*(f_m+f_r)/4 - (g_ll+g_ul)*(f_l+f_m)/4 )/h
+    + alpha/h * ( std::fabs(g_lm+g_um)*(f_m-f_r)/4 - std::fabs(g_ll-g_ul)*(f_l-f_m) );
+}

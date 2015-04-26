@@ -67,4 +67,6 @@ int main()
 	auto it_res = SOR_Poisson(P, RHS, conf._geo, conf._solver);
 
 	std::cout << it_res.first << " " << it_res.second << std::endl;
+
+	std::cout << d2f(conf._geo.delx, 23.04, 25, 27.04) << std::endl;
 }
