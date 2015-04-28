@@ -28,6 +28,11 @@ Matrix::Matrix(Matrix&& rhs) : _data(rhs._data), M(rhs.M), N(rhs.N)
   rhs.M = 0;
   rhs.N = 0;
 }
+Matrix::Matrix(const Matrix& rhs) : _data(), M(rhs.M), N(rhs.N)
+{
+  allocateData();
+  std::copy_n(rhs._data, M*N, _data);
+}
 
 Matrix& Matrix::operator=(Matrix&& rhs)
 {
@@ -264,7 +269,7 @@ Matrix operator+(const Matrix & A1, const Matrix & A2)
   return B;
 }
 
-REAL Matrix::getMax()
+REAL Matrix::getMax() const
 {
 	return *std::max_element(_data, _data + M*N);
 }

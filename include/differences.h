@@ -3,6 +3,8 @@
 
 #include "real.h"
 
+class Matrix;
+
 /**
  *  @brief Computes the second derivative of a function f(x) using the discretization
  *         f''(x) = (f(x-h) - 2f(x) + f(x+h)) / h
@@ -30,5 +32,20 @@ REAL df2(const REAL h, const REAL alpha, const REAL f_r, const REAL f_m, const R
  */
 REAL dfg(const REAL h, const REAL alpha, const REAL f_r, const REAL f_m, const REAL f_l,
 	 const REAL g_ll, const REAL g_lm, const REAL g_ul, const REAL g_um);
+
+
+
+REAL d2fdx(const REAL h, const Matrix& f, const unsigned i, const unsigned j);
+REAL d2fdy(const REAL h, const Matrix& f, const unsigned i, const unsigned j);
+
+REAL df2dx(const REAL h, const REAL alpha, const Matrix& f, const unsigned i, const unsigned j);
+REAL df2dy(const REAL h, const REAL alpha, const Matrix& f, const unsigned i, const unsigned j);
+
+REAL dfgdx(const REAL h, const REAL alpha, const Matrix& f, const Matrix& g, 
+	   const unsigned i, const unsigned j);
+REAL dfgdy(const REAL h, const REAL alpha, const Matrix& f, const Matrix& g, 
+	   const unsigned i, const unsigned j);
+  
+
 
 #endif

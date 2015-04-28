@@ -86,15 +86,15 @@ Config::Config(const std::string& filename)
 	is_set[9] = true;
 	file >> _solver.omega;
       }
-    }else if(input == "alpha") {
+    }    
+    // constants
+    else if(input == "alpha") {
       
       if(!is_set[10]) {
 	is_set[10] = true;
-	file >> _solver.alpha;
+	file >> _constants.alpha;
       }
-    }
-    // constants
-    else if(input == "re") {
+    }else if(input == "re") {
       
       if(!is_set[11]) {
 	is_set[11] = true;

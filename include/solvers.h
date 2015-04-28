@@ -24,7 +24,7 @@ Matrix RHS_Poisson(const Config::geo geoConfig, const REAL delt, const Matrix& F
  *  @param solverConfig Contains parameter omega, residual error eps and maximal iteration number
  *  @return The iteration number and achieved accuracy of the solution
  */
-std::pair<unsigned, REAL> SOR_Poisson(Matrix& P, const Matrix& rhs, const Config::geo geoConfig, 
-				      const Config::solver solverConfig);
+std::pair<unsigned, REAL> SOR_Poisson(const Config::geo geoConfig, const Config::solver solverConfig, 
+				      Matrix& P, const Matrix& rhs);
 
 #endif

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
-#include <random>
+#include <string>
+#include <cmath>
 
 #include "real.h"
 #include "matrix.h"
@@ -10,74 +11,70 @@
 
 #include "solvers.h"
 
+#include "velocity.h"
+
 void initUVP(Config::geo geoConfig, Config::constants constantsConfig, Matrix & U, Matrix & V, Matrix & P)
 {
-	// U = Matrix(geoConfig.imax + 2, geoConfig.jmax + 2, constantsConfig.UI);
-	// V = Matrix(geoConfig.imax + 2, geoConfig.jmax + 2, constantsConfig.VI);
-	// P = Matrix(geoConfig.imax + 2, geoConfig.jmax + 2, constantsConfig.PI);
+  U = Matrix(geoConfig.imax + 2, geoConfig.jmax + 2, constantsConfig.UI);
+  V = Matrix(geoConfig.imax + 2, geoConfig.jmax + 2, constantsConfig.VI);
+  P = Matrix(geoConfig.imax + 2, geoConfig.jmax + 2, constantsConfig.PI);
 }
 
-REAL computeDelta(Config::time timeConfig, Config::geo geoConfig, Config::constants constantsConfig, Matrix * U, Matrix * V) {
-	
-	// REAL vals[3];
+REAL compDelt(Config::geo geoConfig, Config::time timeConfig, Config::constants constantsConfig, 
+	      const Matrix& U, const Matrix& V) 
+{	
+  REAL vals[3];
 
-	// vals[0] = constantsConfig.Re / 2 / (1 / geoConfig.delx / geoConfig.delx + 1 / geoConfig.dely / geoConfig.dely);
-	// vals[1] = geoConfig.delx / U->getMax();
-	// vals[2] = geoConfig.dely / V->getMax();
+  if(U.getMax()!=0 && V.getMax()!=0) {
+    vals[0] = constantsConfig.Re / 2 / (1 / geoConfig.delx / geoConfig.delx + 1 / geoConfig.dely / geoConfig.dely);
+    vals[1] = geoConfig.delx / U.getMax();
+    vals[2] = geoConfig.dely / V.getMax();  
 
-	// return timeConfig.tau * *std::min_element(vals, vals + 3);
-
+    return timeConfig.tau * *std::min_element(vals, vals + 3);
+  }
+  else return timeConfig.tau * constantsConfig.Re / 2 / (  1 / geoConfig.delx / geoConfig.delx 
+							 + 1 / geoConfig.dely / geoConfig.dely);
 }
 
-void setBoundaryConditions(Matrix * U, Matrix * V)
+void outputVTK(const Config::geo geoConfig, const Matrix& U, const Matrix& V, const Matrix& P, const unsigned n)
 {
-	/**
-	 * Iteration laut (18)
-	 */
+  std::string filenameUV = "UV" + std::to_string(n) + ".vtk";
+  std::string filenameP = "P" + std::to_string(n) + ".vtk";
+  writeVectorFieldVTK(filenameUV, "Velocity", U, V, geoConfig.delx, geoConfig.dely);
+  P.writeVTK(filenameP, "Pressure", geoConfig.delx, geoConfig.dely);
 }
 
-void computeFG(Config::geo geoConfig, Config::time timeConfig, Config::constants constantsConfig, Matrix const & U, Matrix const & V, Matrix & F, Matrix & G)
-{
-	// REAL delt = timeConfig.delt;
-	// REAL Re = constantsConfig.Re;
-
-	// for (size_t i = 1; i < geoConfig.imax; ++i) {
-	// 	for (size_t j = 1; j < geoConfig.jmax + 1; ++j)
-	// 	{
-	// 		F.at(i, j) = U.at(i, j) + delt * (1 / Re * (d2Udx2(geoConfig, constantsConfig, U, i, j) + (d2Udy2(geoConfig, constantsConfig, U, i, j))) - dU2dx(geoConfig, constantsConfig, U, i, j) - dUVdx(geoConfig, constantsConfig, U, V, i, j) + constantsConfig.GX);
-	// 	}
-	// }
-
-}
 
 int main()
 {
+  Matrix U{};
+  Matrix V{};
+  Matrix P{};
+  
+  Config conf{"config"};
 
-	/**
-	 * Falls man Matrizen aus diesem Scope in einer Subroutine erstellen will, so müssen hier nur Pointer definiert sein.
-	 */
-  Matrix U(52, 52, 4);
-	Matrix V();
-	Matrix P(52,52, 0);
-	Matrix RHS(52,52, 10);
-	Matrix F(52, 52, 4);
-	Matrix G(52, 52, 70);
+  REAL t=0;
+  REAL delt=0;
+  unsigned n=0;
 
-	Config conf{"config"};
+  initUVP(conf._geo, conf._constants, U, V, P);
+  
+  while(t<conf._time.t_end ){
+    delt = compDelt(conf._geo, conf._time, conf._constants, U, V);
 
-	std::random_device rd;
-	std::default_random_engine e1(rd());
-	std::uniform_int_distribution<int> uniform_dist(1, 52*52);
+    auto FG = compIntermediateVelocity(conf._geo, conf._constants, delt, U, V);
 
-	for(unsigned i=0; i<52; ++i)
-	  for(unsigned j=0; j<52; ++j)
-	    F.at(i,j) = uniform_dist(e1);
+    auto RHS = RHS_Poisson(conf._geo, delt, FG.first, FG.second);
 
-	RHS = RHS_Poisson(conf._geo, 0.02, F, G);
+    auto it_res = SOR_Poisson(conf._geo, conf._solver, P, RHS);
 
-	auto it_res = SOR_Poisson(P, RHS, conf._geo, conf._solver);
+    std::cout << "Schritt " << n  << ": delt = " << delt 
+	      << ", Iterationen: " << it_res.first << ", Residuum: " << it_res.second << std::endl;
+    
+    compNewVelocity(conf._geo, delt, U, V, FG.first, FG.second, P);
 
-	std::cout << it_res.first << " " << it_res.second << std::endl;
+    outputVTK(conf._geo, U, V, P, n++);
 
-	std::cout << d2f(conf._geo.delx, 23.04, 25, 27.04) << std::endl;
+    t += delt;    
+  }
 }

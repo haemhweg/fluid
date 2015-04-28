@@ -12,7 +12,7 @@
 // Computes the right hand side for the poisson problem
 Matrix RHS_Poisson(const Config::geo geoConfig, const REAL delt, const Matrix& F, const Matrix& G)
 {
-  Matrix rhs(geoConfig.imax+2, geoConfig.jmax+2);
+  Matrix rhs(geoConfig.imax+1, geoConfig.jmax+1);
 
   for(unsigned i=1; i<geoConfig.imax+1; ++i){
     for(unsigned j=1; j<geoConfig.jmax+1; ++j){
@@ -26,7 +26,7 @@ Matrix RHS_Poisson(const Config::geo geoConfig, const REAL delt, const Matrix& F
 
 
 // computes the residual
-REAL comp_res(const Matrix& P, const Matrix& rhs, const Config::geo geoConfig)
+REAL comp_res(const Config::geo geoConfig, const Matrix& P, const Matrix& rhs)
 {
   REAL res = 0;
   REAL delx = geoConfig.delx;
@@ -38,8 +38,7 @@ REAL comp_res(const Matrix& P, const Matrix& rhs, const Config::geo geoConfig)
 
   for(unsigned i=1; i<imax+1; ++i) {
     for(unsigned j=1; j<jmax+1; ++j) {
-      res += std::pow(d2f(delx, P.at(i-1,j), P.at(i,j), P.at(i+1,j)) + d2f(dely, P.at(i,j-1), P.at(i,j), P.at(i,j+1))
-		      - rhs.at(i,j), 2) / double(imax*jmax);
+      res += std::pow(d2fdx(delx, P, i, j) + d2fdy(dely, P, i, j) - rhs.at(i,j), 2) / double(imax*jmax);
     }
   }
 
@@ -47,11 +46,11 @@ REAL comp_res(const Matrix& P, const Matrix& rhs, const Config::geo geoConfig)
 }
 
 // Solves the discrete poisson equation using the SOR method
-std::pair<unsigned, REAL> SOR_Poisson(Matrix& P, const Matrix& rhs, const Config::geo geoConfig, 
-				    const Config::solver solverConfig)
+std::pair<unsigned, REAL> SOR_Poisson(const Config::geo geoConfig, const Config::solver solverConfig, 
+				      Matrix& P, const Matrix& rhs)
 {
   // comupte initial residual  
-  REAL res = comp_res(P, rhs, geoConfig);
+  REAL res = comp_res(geoConfig, P, rhs);
   
   REAL omega = solverConfig.omega;
   REAL delx2 = geoConfig.delx*geoConfig.delx;
@@ -80,7 +79,7 @@ std::pair<unsigned, REAL> SOR_Poisson(Matrix& P, const Matrix& rhs, const Config
     }
 
     // compute residual
-    res = comp_res(P, rhs, geoConfig);
+    res = comp_res(geoConfig, P, rhs);
 
     //std::cout << res << std::endl;
   }
