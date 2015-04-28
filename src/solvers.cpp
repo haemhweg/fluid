@@ -6,14 +6,15 @@
 #include "real.h"
 #include "config.h"
 #include "matrix.h"
+#include "differences.h"
 
 
 // computes the residual
 REAL comp_res(const Matrix& P, const Matrix& rhs, const Config::geo geoConfig)
 {
   REAL res = 0;
-  REAL delx2 = geoConfig.delx*geoConfig.delx;
-  REAL dely2 = geoConfig.dely*geoConfig.dely;
+  REAL delx = geoConfig.delx;
+  REAL dely = geoConfig.dely;
 
   unsigned imax = geoConfig.imax;
   unsigned jmax = geoConfig.jmax;
@@ -21,7 +22,7 @@ REAL comp_res(const Matrix& P, const Matrix& rhs, const Config::geo geoConfig)
 
   for(unsigned i=1; i<imax+1; ++i) {
     for(unsigned j=1; j<jmax+1; ++j) {
-      res += std::pow((P.at(i+1,j)-2*P.at(i,j)+P.at(i-1,j))/delx2 + (P.at(i,j+1)-2*P.at(i,j)+P.at(i,j-1))/dely2
+      res += std::pow(d2f(delx, P.at(i-1,j), P.at(i,j), P.at(i+1,j)) + d2f(dely, P.at(i,j-1), P.at(i,j), P.at(i,j+1))
 		      - rhs.at(i,j), 2) / double(imax*jmax);
     }
   }
@@ -56,15 +57,13 @@ std::pair<unsigned, REAL> SOR_Poisson(Matrix& P, const Matrix& rhs, const Config
     for(unsigned i=1; i<geoConfig.imax+1; ++i) {
       for(unsigned j=1; j<geoConfig.jmax+1; ++j) {
 	P.at(i,j) = (1-omega)*P.at(i,j) + omega/(2*(1/delx2 + 1/dely2))
-	  *((P.at(i+1,j)+P.at(i-1,j))/delx2 + (P.at(i,j+1)+P.at(i,j-1))/delx2
+	  *((P.at(i+1,j)+P.at(i-1,j))/delx2 + (P.at(i,j+1)+P.at(i,j-1))/dely2
 	    - rhs.at(i,j));
       }
     }
 
     // compute residual
     res = comp_res(P, rhs, geoConfig);
-
-    std::cout << "Schritt " << it << ": " << res << std::endl;
   }
 
   return std::make_pair(it, res);

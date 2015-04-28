@@ -45,9 +45,7 @@ void computeFG(Config::geo geoConfig, Config::time timeConfig, Config::constants
 	// for (size_t i = 1; i < geoConfig.imax; ++i) {
 	// 	for (size_t j = 1; j < geoConfig.jmax + 1; ++j)
 	// 	{
-	// 		F.at(i, j) = U.at(i, j) + delt 
-	// 		  * (1 / Re * ((d2Udx2(geoConfig, constantsConfig, U, i, j) + (d2Udy2(geoConfig, constantsConfig, U, i, j))) 
-	// 			       - dU2dx(geoConfig, constantsConfig, U, i, j) - dUVdx(geoConfig, constantsConfig, U, V, i, j) + constantsConfig.GX);
+	// 		F.at(i, j) = U.at(i, j) + delt * (1 / Re * (d2Udx2(geoConfig, constantsConfig, U, i, j) + (d2Udy2(geoConfig, constantsConfig, U, i, j))) - dU2dx(geoConfig, constantsConfig, U, i, j) - dUVdx(geoConfig, constantsConfig, U, V, i, j) + constantsConfig.GX);
 	// 	}
 	// }
 
@@ -62,8 +60,8 @@ int main()
 
 	Config conf{"config"};
 
-	Matrix U(52,52,0);
-	Matrix V(52,52,0);
+	Matrix U(52,52,3);
+	Matrix V(52,52,5);
 	Matrix P(52,52, 0);
 	Matrix RHS(52,52, 10);
 	Matrix F(52,52,10);
@@ -74,5 +72,9 @@ int main()
 
 	std::cout << it_res.first << " " << it_res.second << std::endl;
 
+	compIntermediateVelocity(conf._geo, conf._constants, 0.02, U, V, F, G);
+
 	compNewVelocity(conf._geo, 0.02, U, V, F, G, P);
+
+	std::cout << d2f(conf._geo.delx, 23.04, 25, 27.04) << std::endl;
 }

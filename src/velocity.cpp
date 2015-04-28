@@ -1,8 +1,47 @@
 
+#include "velocity.h"
 #include "config.h"
 #include "matrix.h"
 #include "real.h"
-#include "velocity.h"
+#include "differences.h"
+
+void compIntermediateVelocity(const Config::geo geoConfig, const Config::constants constantsConfig,
+			      const REAL delt, const Matrix& U, const Matrix& V, Matrix& F, Matrix& G)
+{
+  const REAL delx = geoConfig.delx;
+  const REAL dely = geoConfig.dely;
+  const REAL alpha = constantsConfig.alpha;
+  const REAL Re = constantsConfig.Re;
+  const REAL gx = constantsConfig.GX;
+  const REAL gy = constantsConfig.GY;
+
+  
+  // Set inner values of F
+  for(unsigned i=1; i<geoConfig.imax; ++i){
+    for(unsigned j=1; j<geoConfig.jmax+1; ++j){
+      F.at(i,j) = U.at(i,j) + delt*((d2fdx(delx, U, i, j) + d2fdy(dely, U, i, j))/Re - df2dx(delx, alpha, U, i, j)
+				    - dfgdy(dely, alpha, U, V, i, j) + gx);
+    }
+  }
+  // Set inner values of G
+  for(unsigned i=1; i<geoConfig.imax+1; ++i){
+    for(unsigned j=1; j<geoConfig.jmax; ++j){
+      G.at(i,j) = V.at(i,j) + delt*((d2fdx(delx, V, i, j) + d2fdy(dely, V, i, j))/Re - df2dy(dely, alpha, V, i, j)
+				    - dfgdx(delx, alpha, U, V, i, j) + gy);
+    }
+  }
+
+  // Set boundary values for F,G
+  for(unsigned j=1; j<geoConfig.jmax; ++j){
+    F.at(0,j) = U.at(0,j);
+    F.at(geoConfig.imax,j) = U.at(geoConfig.imax,j);
+  }
+  for(unsigned i=1; i<geoConfig.imax; ++i){
+    G.at(i,0) = V.at(i,0);
+    G.at(i,geoConfig.jmax) = V.at(i,geoConfig.imax);
+  }
+  
+}
 
 void compNewVelocity(const Config::geo geoConfig, const REAL delt, Matrix& U, Matrix& V,
 		     const Matrix& F, const Matrix& G, const Matrix& P)

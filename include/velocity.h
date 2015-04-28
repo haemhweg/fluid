@@ -1,6 +1,14 @@
 #ifndef VELOCITY_H
 #define VELOCITY_H
 
+#include "real.h"
+#include "config.h"
+
+class Matrix;
+
+void compIntermediateVelocity(const Config::geo geoConfig, const Config::constants constantsConfig,
+			      const REAL delt, const Matrix& U, const Matrix& V, Matrix& F, Matrix& G);
+
 /**
  *  @brief Computes the velocity for the next time step using the given intermediate values F,G and the new pressure P
  *  @param geoConfig, delt Grid and time dicretization

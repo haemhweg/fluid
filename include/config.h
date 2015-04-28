@@ -20,7 +20,6 @@ struct Config
   struct time
   {
     REAL t_end;
-    REAL delt;
     REAL tau;
     REAL del_vec;
   };
@@ -29,11 +28,11 @@ struct Config
     unsigned itmax;
     REAL eps;
     REAL omega;
-    REAL alpha;
   };
   struct constants
   {
     REAL Re;
+    REAL alpha;
     REAL GX, GY;
     REAL UI, VI, PI;
   };
