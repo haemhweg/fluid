@@ -29,6 +29,21 @@ Matrix::Matrix(Matrix&& rhs) : _data(rhs._data), M(rhs.M), N(rhs.N)
   rhs.N = 0;
 }
 
+Matrix& Matrix::operator=(Matrix&& rhs)
+{
+  if(_data) delete [] _data;
+
+  _data = rhs._data;
+  M = rhs.M;
+  N = rhs.N;
+
+  rhs._data = nullptr;
+  rhs.M = 0;
+  rhs.N = 0;
+
+  return *this;
+}
+
 Matrix::Matrix(const std::string & filename)
 {
   std::ifstream fs(filename, std::ios::binary);
@@ -252,18 +267,4 @@ Matrix operator+(const Matrix & A1, const Matrix & A2)
 REAL Matrix::getMax()
 {
 	return *std::max_element(_data, _data + M*N);
-}
-
-Matrix & Matrix::operator=(Matrix&& A)
-{
-	_data = A._data;
-	M = A.M;
-	N = A.N;
-		
-	A._data = nullptr;
-	A.M = 0;
-	A.N = 0;
-			
-	return *this;
-
 }

@@ -9,6 +9,22 @@
 #include "differences.h"
 
 
+// Computes the right hand side for the poisson problem
+Matrix RHS_Poisson(const Config::geo geoConfig, const REAL delt, const Matrix& F, const Matrix& G)
+{
+  Matrix rhs(geoConfig.imax+2, geoConfig.jmax+2);
+
+  for(unsigned i=1; i<geoConfig.imax+1; ++i){
+    for(unsigned j=1; j<geoConfig.jmax+1; ++j){
+      rhs.at(i,j) = (  (F.at(i,j) - F.at(i-1,j))/geoConfig.delx 
+		     + (G.at(i,j) - G.at(i,j-1))/geoConfig.dely) / delt;
+    }
+  }
+
+  return rhs;
+}
+
+
 // computes the residual
 REAL comp_res(const Matrix& P, const Matrix& rhs, const Config::geo geoConfig)
 {
@@ -30,6 +46,7 @@ REAL comp_res(const Matrix& P, const Matrix& rhs, const Config::geo geoConfig)
   return std::sqrt(res);
 }
 
+// Solves the discrete poisson equation using the SOR method
 std::pair<unsigned, REAL> SOR_Poisson(Matrix& P, const Matrix& rhs, const Config::geo geoConfig, 
 				    const Config::solver solverConfig)
 {
@@ -64,6 +81,8 @@ std::pair<unsigned, REAL> SOR_Poisson(Matrix& P, const Matrix& rhs, const Config
 
     // compute residual
     res = comp_res(P, rhs, geoConfig);
+
+    //std::cout << res << std::endl;
   }
 
   return std::make_pair(it, res);

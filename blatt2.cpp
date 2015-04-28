@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <random>
 
 #include "real.h"
 #include "matrix.h"
@@ -55,14 +56,24 @@ int main()
 	/**
 	 * Falls man Matrizen aus diesem Scope in einer Subroutine erstellen will, so müssen hier nur Pointer definiert sein.
 	 */
-	Matrix U();
+  Matrix U(52, 52, 4);
 	Matrix V();
 	Matrix P(52,52, 0);
 	Matrix RHS(52,52, 10);
-	Matrix F();
-	Matrix G();
+	Matrix F(52, 52, 4);
+	Matrix G(52, 52, 70);
 
 	Config conf{"config"};
+
+	std::random_device rd;
+	std::default_random_engine e1(rd());
+	std::uniform_int_distribution<int> uniform_dist(1, 52*52);
+
+	for(unsigned i=0; i<52; ++i)
+	  for(unsigned j=0; j<52; ++j)
+	    F.at(i,j) = uniform_dist(e1);
+
+	RHS = RHS_Poisson(conf._geo, 0.02, F, G);
 
 	auto it_res = SOR_Poisson(P, RHS, conf._geo, conf._solver);
 
