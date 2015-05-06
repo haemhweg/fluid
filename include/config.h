@@ -5,6 +5,8 @@
 
 #include "real.h"
 
+enum  BCType { NO_SLIP=1, FREE_SLIP=2, OUTFLOW=3 };
+
 struct Config
 {
 
@@ -36,11 +38,18 @@ struct Config
     REAL GX, GY;
     REAL UI, VI, PI;
   };
+  struct boundaryCondition
+  {
+    BCType wl, wr, wt, wb;
+    std::string problem="default";
+  };
+
 
   geo _geo=geo();
   time _time=time();
   solver _solver=solver();
   constants _constants=constants();
+  boundaryCondition _bc=boundaryCondition();
 
   Config(const std::string& filename);
 };

@@ -1,6 +1,7 @@
 #include <utility>
 #include <algorithm>
 #include <iostream>
+#include <string>
 
 #include "velocity.h"
 #include "config.h"
@@ -8,12 +9,107 @@
 #include "real.h"
 #include "differences.h"
 
-std::pair<Matrix,Matrix> compIntermediateVelocity(const Config::geo geoConfig, const Config::constants constantsConfig,
-						  const REAL delt, const Matrix& U, const Matrix& V)
-{
-  Matrix F{geoConfig.imax+1, geoConfig.jmax+1};
-  Matrix G{geoConfig.imax+1, geoConfig.jmax+1};
 
+void Velocity::updateBoundary()
+{
+  unsigned jmax = geoConfig.jmax;
+  unsigned imax = geoConfig.imax;
+
+  // top boundary, i.e. j = jmax,jmax+1
+  switch (bc.wt)
+    {
+    case NO_SLIP:
+      for(unsigned i=1; i<imax+1; ++i){
+	U.at(i,jmax+1) = -U.at(i,jmax);
+	V.at(i,jmax) = 0;
+      }
+      break;
+    case FREE_SLIP:
+      for(unsigned i=1; i<imax+1; ++i){
+	U.at(i,jmax+1) = U.at(i,jmax);
+	V.at(i,jmax) = 0;
+      }
+      break;
+    case OUTFLOW:
+      for(unsigned i=1; i<imax+1; ++i){
+	U.at(i,jmax+1) = U.at(i,jmax);
+	V.at(i,jmax) = V.at(i,jmax-1);
+      }
+      break;
+    }
+
+  // right boundary, i.e. i = imax,imax+1
+  switch (bc.wr)
+    {
+    case NO_SLIP:
+      for(unsigned j=1; j<jmax+1; ++j){
+	U.at(imax,j) = 0;
+	V.at(imax+1,j) = -V.at(imax,j);
+      }
+      break;
+    case FREE_SLIP:
+      for(unsigned j=1; j<jmax+1; ++j){
+	U.at(imax,j) = 0;
+	V.at(imax+1,j) = V.at(imax,j);	
+      }
+      break;
+    case OUTFLOW:
+      for(unsigned j=1; j<jmax+1; ++j){
+	U.at(imax,j) = U.at(imax-1,j);
+	V.at(imax+1,j) = V.at(imax,j);
+      }
+      break;
+    }
+
+  // bottom boundary, i.e. j=0
+  switch (bc.wb)
+    {
+    case NO_SLIP:
+      for(unsigned i=1; i<imax+1; ++i){
+	U.at(i,0) = -U.at(i,1);
+	V.at(i,0) = 0;
+      }
+      break;
+    case FREE_SLIP:
+      for(unsigned i=1; i<imax+1; ++i){
+	U.at(i,0) = U.at(i,1);
+	V.at(i,0) = 0;
+      }
+      break;
+    case OUTFLOW:
+      for(unsigned i=1; i<imax+1; ++i){
+	U.at(i,0) = U.at(i,1);
+	V.at(i,0) = V.at(i,1);
+      }
+      break;
+    }
+
+  // left boundary, i.e. i=0
+  switch (bc.wl)
+    {
+    case NO_SLIP:
+      for(unsigned j=1; j<jmax+1; ++j){
+	U.at(0,j) = 0;
+	V.at(0,j) = -V.at(1,j);
+      }
+      break;
+    case FREE_SLIP:
+      for(unsigned j=1; j<jmax+1; ++j){
+	U.at(0,j) = U.at(1,j);
+	V.at(0,j) = 0;
+      }
+      break;
+    case OUTFLOW:
+      for(unsigned j=1; j<jmax+1; ++j){
+	U.at(0,j) = U.at(1,j);
+	V.at(0,j) = V.at(1,j);
+      }
+      break;
+    }
+}
+
+void Velocity::updateIntermidiate(const REAL delt)
+{
   const REAL delx = geoConfig.delx;
   const REAL dely = geoConfig.dely;
   const REAL alpha = constantsConfig.alpha;
@@ -45,14 +141,31 @@ std::pair<Matrix,Matrix> compIntermediateVelocity(const Config::geo geoConfig, c
     G.at(i,0) = V.at(i,0);
     G.at(i,geoConfig.jmax) = V.at(i,geoConfig.imax);
   }
-  
-  return std::make_pair(std::move(F), std::move(G));
 }
 
-void compNewVelocity(const Config::geo geoConfig, const REAL delt, Matrix& U, Matrix& V,
-		     const Matrix& F, const Matrix& G, const Matrix& P)
-{
 
+const Matrix Velocity::getDivergenceIntermidiate(const REAL delt)
+{
+  Matrix divergence{geoConfig.imax+1, geoConfig.jmax+1};
+
+  updateBoundary();
+
+  updateSPBoundary(geoConfig.imax, geoConfig.jmax, U, V);
+  
+  updateIntermidiate(delt);
+  
+  for(unsigned i=1; i<geoConfig.imax+1; ++i){
+    for(unsigned j=1; j<geoConfig.jmax+1; ++j){
+      divergence.at(i,j) = (  (F.at(i,j) - F.at(i-1,j))/geoConfig.delx 
+		       + (G.at(i,j) - G.at(i,j-1))/geoConfig.dely) / delt;
+    }
+  }
+
+  return divergence;
+}
+
+void Velocity::update(const REAL delt, const Matrix& P)
+{
   const REAL delx = geoConfig.delx;
   const REAL dely = geoConfig.dely;
   
@@ -69,24 +182,4 @@ void compNewVelocity(const Config::geo geoConfig, const REAL delt, Matrix& U, Ma
       V.at(i,j) = G.at(i,j) - delt/dely * (P.at(i,j+1) - P.at(i,j));
     }
   }
-
-  // Set boundary on vertical boundary
-  for(unsigned j=1; j<geoConfig.jmax+1; ++j){
-    // Invoke zero dirichlet bc on U
-    U.at(0,j) = U.at(geoConfig.imax,j) = 0;
-
-    // Invoke zero dirichlet bc on V by linear interpolation
-    V.at(0,j) = -V.at(1,j);
-    V.at(geoConfig.imax+1,j) = -V.at(geoConfig.imax,j);
-  }
-  // Set boundary on horizontal boundary
-  for(unsigned i=0; i<geoConfig.imax+1; ++i){
-    // Invoke zero dirichlet bc on U
-    V.at(i,0) = V.at(i,geoConfig.jmax) = 0;
-
-    // Invoke zero dirichlet bc on V by linear interpolation
-    U.at(i,0) = -U.at(i,1);
-    U.at(i,geoConfig.jmax+1) = REAL(2.0)-U.at(i,geoConfig.jmax);
-  }
-
 }

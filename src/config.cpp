@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
+#include <cstdlib>
 
 #include "config.h"
 
@@ -13,7 +14,7 @@ Config::Config(const std::string& filename)
 
   std::string input;
 
-  std::vector<bool> is_set(17, false);
+  std::vector<bool> is_set(21, false);
 
 
   while(file.good()) {
@@ -131,14 +132,47 @@ Config::Config(const std::string& filename)
 	is_set[16] = true;
 	file >> _constants.PI;
       }
+    }else if(input == "wl") {
+      
+      if(!is_set[17]) {
+	int bc_val;
+	is_set[17] = true;
+	file >> bc_val;
+	_bc.wl = static_cast<BCType>(bc_val);
+      }
+    }else if(input == "wr") {
+      
+      if(!is_set[18]) {
+	int bc_val;
+	is_set[18] = true;
+	file >> bc_val;
+	_bc.wr = static_cast<BCType>(bc_val);
+      }
+    }else if(input == "wt") {
+      
+      if(!is_set[19]) {
+	int bc_val;
+	is_set[19] = true;
+	file >> bc_val;
+	_bc.wt = static_cast<BCType>(bc_val);
+      }
+    }else if(input == "wb") {
+      
+      if(!is_set[20]) {
+	int bc_val;
+	is_set[20] = true;
+	file >> bc_val;
+	_bc.wb = static_cast<BCType>(bc_val);
+      }
     }
   }
 
-  if(std::equal(std::begin(is_set), std::end(is_set), std::begin(std::vector<bool>(17,true)))) {
+  if(std::equal(std::begin(is_set), std::end(is_set), std::begin(std::vector<bool>(21,true)))) {
     _geo.delx = REAL(_geo.xlength)/_geo.imax;
     _geo.dely = REAL(_geo.ylength)/_geo.jmax;
   }
   else{
     std::cout << "Wrong input!" << std::endl;
+    std::exit(EXIT_FAILURE);
   }  
 }
