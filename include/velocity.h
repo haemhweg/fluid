@@ -8,6 +8,7 @@
 #include "config.h"
 #include "matrix.h"
 #include "specialBoundary.h"
+#include "geometry.h"
 
 
 class Velocity
@@ -20,7 +21,9 @@ class Velocity
   const Config::constants constantsConfig;
   const Config::boundaryCondition bc;
 
-  const special_boundary updateSPBoundary;
+  const special_boundary& updateSPBoundary;
+
+  const Geometry& geometry;
   
   /**
    *
@@ -35,10 +38,10 @@ class Velocity
 public:
   
   Velocity(const Config::geo geo_, const Config::constants constants_, const Config::boundaryCondition bc_, 
-	   const special_boundary& bc_sp_) 
+	   const Geometry& geometry_, const special_boundary& bc_sp_) 
     : F(geo_.imax+1, geo_.jmax+1), G(geo_.imax+1, geo_.jmax+1), U(geo_.imax+2, geo_.jmax+2, constants_.UI), 
       V(geo_.imax+2, geo_.jmax+2, constants_.VI), geoConfig(geo_), constantsConfig(constants_), 
-      bc(bc_), updateSPBoundary(bc_sp_) { }
+      bc(bc_), updateSPBoundary(bc_sp_), geometry(geometry_) { }
 
   /**
    *  @brief Computes the right hand side for the discrete 2D poisson equation.

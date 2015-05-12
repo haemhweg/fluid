@@ -39,5 +39,5 @@ foreach(InputFile ${InputFiles})
   configure_file("${InputFile}" "./" COPYONLY)
 endforeach()
 
-add_executable(blatt2 blatt2.cpp)
-target_link_libraries(blatt2 CFD)
+add_executable(blatt3 blatt3.cpp)
+target_link_libraries(blatt3 CFD)
