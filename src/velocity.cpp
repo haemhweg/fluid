@@ -11,6 +11,27 @@
 #include "geometry.h"
 
 
+
+Velocity::Velocity(const Config::geo geo_, const Config::constants constants_, const Config::boundaryCondition bc_, 
+		   const Geometry& geometry_, const special_boundary& bc_sp_) 
+  : F(geo_.imax+1, geo_.jmax+1), G(geo_.imax+1, geo_.jmax+1), U(geo_.imax+2, geo_.jmax+2, 0), 
+    V(geo_.imax+2, geo_.jmax+2, 0), geoConfig(geo_), constantsConfig(constants_), 
+    bc(bc_), updateSPBoundary(bc_sp_), geometry(geometry_) 
+{ 
+  const REAL UI = constants_.UI;
+  const REAL VI = constants_.VI;
+  const auto fluid = geometry.get_fluid();
+  
+
+  for(const auto& cell : fluid){
+    const unsigned i = cell.first, j = cell.second;
+
+    U.at(i,j) = UI;
+    V.at(i,j) = VI;
+  }
+}
+
+
 void Velocity::updateBoundary()
 {
   unsigned jmax = geoConfig.jmax;
