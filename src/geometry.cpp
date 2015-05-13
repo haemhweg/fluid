@@ -6,9 +6,8 @@
 #include "geometry.h"
 
 
-Geometry::Geometry(const unsigned imax_, const unsigned jmax_, 
-		   const std::function<std::vector<CELL>(unsigned,unsigned)> fill_geometry)
-  : cells(fill_geometry(imax_,jmax_)), imax(imax_), jmax(jmax_), cells_boundary()
+Geometry::Geometry(const Config::geo& geoConfig, const std::function<std::vector<CELL>(const Config::geo&)> fill_geometry)
+  : cells(fill_geometry(geoConfig)), imax(geoConfig.imax), jmax(geoConfig.jmax), cells_boundary()
 {
   for(unsigned i=0; i<imax+2; ++i){
     for(unsigned j=0; j<jmax+2; ++j){ 
