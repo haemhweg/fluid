@@ -22,7 +22,6 @@ Velocity::Velocity(const Config::geo geo_, const Config::constants constants_, c
   const REAL VI = constants_.VI;
   const auto fluid = geometry.get_fluid();
   
-
   for(const auto& cell : fluid){
     const unsigned i = cell.first, j = cell.second;
 

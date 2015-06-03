@@ -35,10 +35,9 @@ std::vector<CELL> geometry_DEFAULT(const Config::geo& geoConfig)
 
 std::vector<CELL> geometry_STEP(const Config::geo& geoConfig)
 {  
-  const unsigned imax = geoConfig.imax, jmax = geoConfig.jmax;
-  const REAL xlength = geoConfig.xlength, ylength = geoConfig.ylength;
+  const unsigned jmax = geoConfig.jmax;
 
-  std::vector<CELL> cells(geometry_default(geoConfig));
+  std::vector<CELL> cells(geometry_DEFAULT(geoConfig));
 
   for(unsigned j=1; j<jmax/2+1; ++j){
     cells[j*(jmax+2)+jmax/2+1] = B_N;
@@ -50,5 +49,10 @@ std::vector<CELL> geometry_STEP(const Config::geo& geoConfig)
       cells[j+i*(jmax+2)] = BLOCK;
     }    
   }
+
+  cells[(jmax/2+1)*(jmax+2)+jmax/2+1] = B_NO;
+  cells[jmax/2+1] = BLOCK;
+  cells[(jmax/2+1)*(jmax+2)] = BLOCK;
  
+  return cells;
 }

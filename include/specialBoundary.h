@@ -7,7 +7,7 @@
 #include "geometry.h"
 #include "matrix.h"
 
-using special_boundary = std::function<void(const unsigned,const unsigned,Matrix&,Matrix&)>;
+typedef std::function<void(const unsigned,const unsigned,Matrix&,Matrix&)> special_boundary;
 
 //void bc_NONE(const unsigned, const unsigned, Matrix&, Matrix&) { }
 
@@ -15,4 +15,5 @@ void bc_DRIVEN_CAVITY(const unsigned imax, const unsigned jmax, Matrix& U, Matri
 
 std::vector<CELL> geometry_DEFAULT(const Config::geo& geoConfig);
 
+std::vector<CELL> geometry_STEP(const Config::geo& geoConfig);
 #endif

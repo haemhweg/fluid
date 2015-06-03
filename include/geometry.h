@@ -4,7 +4,9 @@
 #include <vector>
 #include <functional>
 
-enum CELL { FLUID, BLOCK, B_N, B_O, B_S, B_W, B_NW, B_SW, B_SO, B_NO };
+#include "config.h"
+
+enum CELL { FLUID=0, BLOCK, B_N, B_O, B_S, B_W, B_NW, B_SW, B_SO, B_NO };
 
 class Geometry
 {

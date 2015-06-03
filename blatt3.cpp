@@ -38,7 +38,7 @@ int main()
 {  
   Config conf{"config"};
 
-  Geometry geometry(conf._geo.imax, conf._geo.jmax, geometry_DEFAULT);
+  Geometry geometry(conf._geo, geometry_STEP);
 
   Matrix Pressure{conf._geo.imax + 2, conf._geo.jmax + 2, conf._constants.PI};
   Velocity Velocity{conf._geo, conf._constants, conf._bc, geometry, bc_DRIVEN_CAVITY};

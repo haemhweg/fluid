@@ -23,9 +23,9 @@ Geometry::Geometry(const Config::geo& geoConfig, const std::function<std::vector
 
 void Geometry::print()
 {
-  for (unsigned i = 0; i < imax+2; i++)
+  for (int j = jmax+1; j >=0 ; --j)
     {
-      for (unsigned j = 0; j < jmax+2; j++)
+      for (unsigned i = 0; i < imax+2; ++i)
 	{
 	  std::cout << int(at(i,j)) << "\t";
 	}
