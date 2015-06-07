@@ -5,12 +5,11 @@
 
 #include "geometry.h"
 
-
-Geometry::Geometry(const Config::geo& geoConfig, const std::function<std::vector<CELL>(const Config::geo&)> fill_geometry)
-  : cells(fill_geometry(geoConfig)), imax(geoConfig.imax), jmax(geoConfig.jmax), cells_boundary()
+Geometry::Geometry(const Config::geo& geoConfig, const std::function<std::vector<CELL>(const Config::geo&)>& geoInit)
+  : cells(geoInit(geoConfig)), imax(geoConfig.imax), jmax(geoConfig.jmax), cells_boundary(), cells_fluid()
 {
-  for(unsigned i=0; i<imax+2; ++i){
-    for(unsigned j=0; j<jmax+2; ++j){ 
+  for(unsigned i=1; i<imax+1; ++i){
+    for(unsigned j=1; j<jmax+1; ++j){ 
       if(at(i,j)==FLUID){
 	cells_fluid.emplace_back(std::make_pair(i,j));
       }
@@ -27,7 +26,7 @@ void Geometry::print()
     {
       for (unsigned i = 0; i < imax+2; ++i)
 	{
-	  std::cout << int(at(i,j)) << "\t";
+	  std::cout << int(at(i,j)) << "  ";
 	}
       std::cout << std::endl;
     }

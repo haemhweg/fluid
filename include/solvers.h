@@ -6,6 +6,7 @@
 #include "config.h"
 #include "matrix.h"
 #include "real.h"
+#include "geometry.h"
 
 /**
  *  @brief Solves the discrete 2D poisson equation using the SOR method.
@@ -14,7 +15,7 @@
  *  @param solverConfig Contains parameter omega, residual error eps and maximal iteration number
  *  @return The iteration number and achieved accuracy of the solution
  */
-std::pair<unsigned, REAL> SOR_Poisson(const Config::geo geoConfig, const Config::solver solverConfig, 
-				      Matrix& P, const Matrix& rhs);
+std::pair<unsigned, REAL> SOR_Poisson(const Config::geo& geoConfig, const Config::solver solverConfig, 
+				      const Geometry& geometry, Matrix& P, const Matrix& rhs);
 
 #endif

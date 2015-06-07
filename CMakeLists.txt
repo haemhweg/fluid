@@ -33,7 +33,7 @@ add_library(CFD ${INCLUDE} ${SRC})
 
 file(GLOB InputFiles ${PROJECT_SOURCE_DIR}/input/*.vtk
                      ${PROJECT_SOURCE_DIR}/input/*.dat
-		     ${PROJECT_SOURCE_DIR}/input/config)
+		     ${PROJECT_SOURCE_DIR}/input/config*)
 
 foreach(InputFile ${InputFiles})
   configure_file("${InputFile}" "./" COPYONLY)

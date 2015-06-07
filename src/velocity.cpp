@@ -1,6 +1,7 @@
 #include <utility>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 #include "velocity.h"
@@ -11,16 +12,38 @@
 #include "geometry.h"
 
 
+void Velocity::print()
+{
+  unsigned jmax = geoConfig.jmax;
+  unsigned imax = geoConfig.imax;
+
+  std::cout << std::endl;
+  std::cout << "Velocity"
+	    << std::left<< std::endl;
+
+  for (int j = jmax+1; j>=0; --j)
+    {
+      for (unsigned i = 0; i < imax+2; ++i)
+	{
+	  std::cout << "(" << U.at(i,j) << ","<< V.at(i,j) << ")" << "\t";
+	}
+      std::cout << std::endl;
+    }
+
+  std::cout << std::setprecision(6);
+
+}
+
 
 Velocity::Velocity(const Config::geo geo_, const Config::constants constants_, const Config::boundaryCondition bc_, 
-		   const Geometry& geometry_, const special_boundary& bc_sp_) 
+		   const Geometry& geometry_, const special_boundary_fct& bc_sp_) 
   : F(geo_.imax+1, geo_.jmax+1), G(geo_.imax+1, geo_.jmax+1), U(geo_.imax+2, geo_.jmax+2, 0), 
     V(geo_.imax+2, geo_.jmax+2, 0), geoConfig(geo_), constantsConfig(constants_), 
-    bc(bc_), updateSPBoundary(bc_sp_), geometry(geometry_) 
+    bc(bc_), updateSPBoundary(bc_sp_), geometry(geometry_)
 { 
   const REAL UI = constants_.UI;
   const REAL VI = constants_.VI;
-  const auto fluid = geometry.get_fluid();
+  const auto& fluid = geometry.get_fluid();
   
   for(const auto& cell : fluid){
     const unsigned i = cell.first, j = cell.second;
@@ -36,8 +59,8 @@ void Velocity::updateBoundary()
   unsigned jmax = geoConfig.jmax;
   unsigned imax = geoConfig.imax;
 
-  // Setze Randwerte bzgl. der Hindernisse
-  auto boundary = geometry.get_boundary();
+  // Setze Randwerte bzgl. der inneren Hindernisse
+  auto& boundary = geometry.get_boundary();
 
   for(const auto& cell : boundary){
     unsigned i = cell.first, j = cell.second;
@@ -185,6 +208,9 @@ void Velocity::updateBoundary()
       }
       break;
     }
+
+  // Set special boundary condition
+  updateSPBoundary(imax, jmax, U, V);
 }
 
 void Velocity::updateIntermidiate(const REAL delt)
@@ -253,24 +279,18 @@ void Velocity::updateIntermidiate(const REAL delt)
 }
 
 
-const Matrix Velocity::getDivergenceIntermidiate(const REAL delt)
+void Velocity::setDivergenceIntermidiate(const REAL delt, Matrix& div)
 {
-  Matrix divergence{geoConfig.imax+1, geoConfig.jmax+1};
-
   updateBoundary();
-
-  updateSPBoundary(geoConfig.imax, geoConfig.jmax, U, V);
   
   updateIntermidiate(delt);
   
   for(unsigned i=1; i<geoConfig.imax+1; ++i){
     for(unsigned j=1; j<geoConfig.jmax+1; ++j){
-      divergence.at(i,j) = (  (F.at(i,j) - F.at(i-1,j))/geoConfig.delx 
-		       + (G.at(i,j) - G.at(i,j-1))/geoConfig.dely) / delt;
+      div.at(i,j) = (  (F.at(i,j) - F.at(i-1,j))/geoConfig.delx 
+		     + (G.at(i,j) - G.at(i,j-1))/geoConfig.dely) / delt;
     }
   }
-
-  return divergence;
 }
 
 void Velocity::update(const REAL delt, const Matrix& P)

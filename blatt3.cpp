@@ -34,35 +34,47 @@ REAL compDelt(Config::geo geoConfig, Config::time timeConfig, Config::constants 
 							 + 1 / geoConfig.dely / geoConfig.dely);
 }
 
-int main()
+int main(int argc, char* argv[])
 {  
-  Config conf{"config"};
+  Config conf{"config_KARMAN"};
 
-  Geometry geometry(conf._geo, geometry_STEP);
+  Geometry geometry(conf._geo, geometry_KARMAN);
 
   Matrix Pressure{conf._geo.imax + 2, conf._geo.jmax + 2, conf._constants.PI};
-  Velocity Velocity{conf._geo, conf._constants, conf._bc, geometry, bc_DRIVEN_CAVITY};
+  Matrix Div_velocity{conf._geo.imax + 1, conf._geo.jmax + 1, 0};
+  Velocity Velocity{conf._geo, conf._constants, conf._bc, geometry, bc_KARMAN};
 
   REAL t=0;
   REAL delt=0;
-  unsigned step=0;
-  
+  REAL next_output=conf._time.del_vec;
+  unsigned step=1;
+
+  Velocity.writeVTK(0);
+  Pressure.writeVTK("Pressure0.vtk", "Pressure", conf._geo.delx, conf._geo.dely);
+    
   while(t<conf._time.t_end ){
     delt = compDelt(conf._geo, conf._time, conf._constants, Velocity);
 
-    auto RHS = Velocity.getDivergenceIntermidiate(delt);
+    Velocity.setDivergenceIntermidiate(delt, Div_velocity);
 
-    auto it_res = SOR_Poisson(conf._geo, conf._solver, Pressure, RHS);
-
-    std::cout << "Schritt " << step  << ": delt = " << delt 
-  	      << ", Iterationen: " << it_res.first << ", Residuum: " << it_res.second << std::endl;
+    auto it_res = SOR_Poisson(conf._geo, conf._solver, geometry, Pressure, Div_velocity);
 
     Velocity.update(delt, Pressure);
 
-    Velocity.writeVTK(step);
-    Pressure.writeVTK("Pressure"+std::to_string(step)+".vtk", "Pressure", conf._geo.delx, conf._geo.dely);
+    if(t>next_output){      
+      std::cout << "Ausgabe " << step  << ": delt = " << delt 
+  		<< ", Iterationen: " << it_res.first << ", Residuum: " << it_res.second << std::endl;
 
-    t += delt;    
-    ++step;
+      Velocity.writeVTK(step);
+      Pressure.writeVTK("Pressure"+std::to_string(step)+".vtk", "Pressure", conf._geo.delx, conf._geo.dely);
+      
+      next_output += conf._time.del_vec;   
+      ++step;
+    }
+
+    t += delt; 
   }
+
+  Velocity.writeVTK(step);
+  Pressure.writeVTK("Pressure"+std::to_string(step)+".vtk", "Pressure", conf._geo.delx, conf._geo.dely);
 }

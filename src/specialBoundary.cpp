@@ -12,7 +12,7 @@ void bc_DRIVEN_CAVITY(const unsigned imax, const unsigned jmax, Matrix& U, Matri
   }
 }
 
-std::vector<CELL> geometry_DEFAULT(const Config::geo& geoConfig)
+std::vector<CELL> geometry_DRIVEN_CAVITY(const Config::geo& geoConfig)
 {
   const unsigned imax = geoConfig.imax, jmax = geoConfig.jmax;
   
@@ -32,27 +32,77 @@ std::vector<CELL> geometry_DEFAULT(const Config::geo& geoConfig)
   return cells;
 }
 
+void bc_STEP(const unsigned, const unsigned jmax, Matrix& U, Matrix&)
+{
+  for(unsigned j=0; j<jmax/2+1; ++j){
+    U.at(0,j) = 0;
+  }
+  for(unsigned j=jmax/2+1; j<jmax+1; ++j){
+    U.at(0,j) = REAL(1.);
+  }
+}
 
 std::vector<CELL> geometry_STEP(const Config::geo& geoConfig)
 {  
   const unsigned jmax = geoConfig.jmax;
 
-  std::vector<CELL> cells(geometry_DEFAULT(geoConfig));
+  std::vector<CELL> cells(geometry_DRIVEN_CAVITY(geoConfig));
 
-  for(unsigned j=1; j<jmax/2+1; ++j){
-    cells[j*(jmax+2)+jmax/2+1] = B_N;
-    cells[(jmax/2+1)*(jmax+2)+j] = B_O;
+  for(unsigned j=1; j<jmax/2; ++j){
+    cells[j*(jmax+2)+jmax/2] = B_N;
+    cells[(jmax/2)*(jmax+2)+j] = B_O;
   }
 
-  for(unsigned j=0; j<jmax/2+1; ++j){
-    for(unsigned i=0; i<jmax/2+1; ++ i){
+  for(unsigned j=0; j<jmax/2; ++j){
+    for(unsigned i=0; i<jmax/2; ++ i){
       cells[j+i*(jmax+2)] = BLOCK;
     }    
   }
 
-  cells[(jmax/2+1)*(jmax+2)+jmax/2+1] = B_NO;
-  cells[jmax/2+1] = BLOCK;
-  cells[(jmax/2+1)*(jmax+2)] = BLOCK;
+  cells[(jmax/2)*(jmax+2)+jmax/2] = B_NO;
+  cells[jmax/2] = BLOCK;
+  cells[(jmax/2)*(jmax+2)] = BLOCK;
+ 
+  return cells;
+}
+
+void bc_KARMAN(const unsigned, const unsigned jmax, Matrix& U, Matrix&)
+{
+  for(unsigned j=1; j<jmax+1; ++j){
+    U.at(0,j) = REAL(1.);
+  }  
+}
+
+std::vector<CELL> geometry_KARMAN(const Config::geo& geoConfig)
+{  
+  const unsigned jmax = geoConfig.jmax;
+  const unsigned offset = 2*jmax/5+(jmax%5)/2;
+  unsigned i, j;
+
+  std::vector<CELL> cells(geometry_DRIVEN_CAVITY(geoConfig));
+
+  // Untere 2 Kanten des Balken
+  cells[(offset)*(jmax+2)+offset+1] = B_SW;
+  cells[(offset+1)*(jmax+2)+offset+1] = B_SO;
+
+  cells[(offset)*(jmax+2)+offset+2] = B_NW;
+  cells[(offset+1)*(jmax+2)+offset+2] = BLOCK;
+  cells[(offset+2)*(jmax+2)+offset+2] = B_O;
+
+  // Innerer Teil des Balken
+  for(j=3, i=1; j<jmax/5-1; ++j, ++i){
+    cells[(offset+i)*(jmax+2)+offset+j] = B_W;
+    cells[(offset+i+1)*(jmax+2)+offset+j] = BLOCK;
+    cells[(offset+i+2)*(jmax+2)+offset+j] = B_O;    
+  }
+  
+  // Obersten 2 Kanten des Balken
+  cells[(offset+i)*(jmax+2)+offset+jmax/5-1] = B_W;
+  cells[(offset+i+1)*(jmax+2)+offset+jmax/5-1] = BLOCK;
+  cells[(offset+i+2)*(jmax+2)+offset+jmax/5-1] = B_SO;
+  
+  cells[(offset+i+1)*(jmax+2)+offset+jmax/5] = B_NW;
+  cells[(offset+i+2)*(jmax+2)+offset+jmax/5] = B_NO;
  
   return cells;
 }

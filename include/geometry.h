@@ -18,7 +18,7 @@ class Geometry
 
  public:
 
-  Geometry(const Config::geo& geoConfig, const std::function<std::vector<CELL>(const Config::geo&)> fill_geometry);
+  Geometry(const Config::geo& geoConfig, const std::function<std::vector<CELL>(const Config::geo&)>& geoInit);
 
   CELL at(unsigned i, unsigned j) const { return cells[i*(jmax+2)+j]; }
   CELL& at(unsigned i, unsigned j) { return cells[i*(jmax+2)+j]; }
