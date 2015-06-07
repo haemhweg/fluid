@@ -5,8 +5,7 @@
 #include <functional>
 
 #include "config.h"
-
-enum CELL { FLUID=0, BLOCK, B_N, B_O, B_S, B_W, B_NW, B_SW, B_SO, B_NO };
+#include "specialBoundary.h"
 
 class Geometry
 {
@@ -18,7 +17,7 @@ class Geometry
 
  public:
 
-  Geometry(const Config::geo& geoConfig, const std::function<std::vector<CELL>(const Config::geo&)>& geoInit);
+  Geometry(const Config::geo& geoConfig, const init_geometry_fct& geoInit);
 
   CELL at(unsigned i, unsigned j) const { return cells[i*(jmax+2)+j]; }
   CELL& at(unsigned i, unsigned j) { return cells[i*(jmax+2)+j]; }
