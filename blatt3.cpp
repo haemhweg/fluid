@@ -35,8 +35,10 @@ REAL compDelt(Config::geo geoConfig, Config::time timeConfig, Config::constants 
 int main(int argc, char* argv[])
 {  
   MPI_Comm comm_grid;
-  Config conf{"config_DRIVEN_CAVITY"};
-
+  Config conf{"config_STEP"};
+  int rank, nprocs;
+  MPI_Init(0, 0);
+  
   init_MPI_Grid(conf._geo, comm_grid);
 
   MPI_Finalize();
