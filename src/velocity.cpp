@@ -317,7 +317,7 @@ void Velocity::update(const REAL delt, const Matrix& P)
 
 void Velocity::exchange(MPI_Comm comm_grid)
 {
-  int rank_src = get_MPI_Comm_rank(comm_grid), rank_dest, myrank;
+  int rank_src, rank_dest, myrank = get_MPI_Comm_rank(comm_grid);
   int coords_src[2], coords_dest[2], mycoords[2];
   unsigned imax = geoConfig.imax, jmax = geoConfig.jmax;
 
