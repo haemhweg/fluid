@@ -45,3 +45,4 @@ int init_MPI_Grid(const Config::geo& geoConfig, MPI_Comm comm_grid)
 
   return MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &comm_grid);
 }
+
