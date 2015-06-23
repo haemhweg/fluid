@@ -203,5 +203,6 @@ Config::Config(const std::string& filename, MPI_COMM comm_grid)
   else{
     std::cout << "Wrong input!" << std::endl;
     std::exit(EXIT_FAILURE);
+
   }  
 }
