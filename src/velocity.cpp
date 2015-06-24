@@ -315,69 +315,69 @@ void Velocity::update(const REAL delt, const Matrix& P)
 }
 
 
-void Velocity::exchange(MPI_Comm comm_grid)
-{
-  int rank_src, rank_dest, myrank = get_MPI_Comm_rank(comm_grid);
-  int coords_src[2], coords_dest[2], mycoords[2];
-  unsigned imax = geoConfig.imax, jmax = geoConfig.jmax;
+// void Velocity::exchange(MPI_Comm comm_grid)
+// {
+//   int rank_src, rank_dest, myrank = get_MPI_Comm_rank(comm_grid);
+//   int coords_src[2], coords_dest[2], mycoords[2];
+//   unsigned imax = geoConfig.imax, jmax = geoConfig.jmax;
 
-  MPI_Request request;
-  MPI_Request status;
+//   MPI_Request request;
+//   MPI_Request status;
 
-  MPI_Cart_coords(comm_grid, myrank, 2, mycoords);
-
-
-  // send right
-  coord_dest[0] = mycoords[0]+1; coord_dest[1] = mycoords[1];
-  MPI_Cart_rank(comm_grid, coords_dest, &rank_dest);
-  MPI_Isend((void*)&U.at(imax,0), jmax, MPI_DOUBLE, rank_dest, 0, comm_grid, &request);
-
-  coord_src[0] = mycoords[0]-1; coord_src[1] = mycoords[1];
-  MPI_Cart_rank(comm_grid, coords_src, &rank_src);  
-  MPI_Irecv((void*)&U.at(0,0), jmax, MPI_DOUBLE, rank_src, 0, comm_grid, &request);
-  MPI_Wait(&request,&status);
-
-  // send left
-  coord_dest[0] = mycoords[0]-1; coord_dest[1] = mycoords[1];
-  MPI_Cart_rank(comm_grid, coords_dest, &rank_dest);
-  MPI_Isend((void*)&U.at(0,0), jmax, MPI_DOUBLE, rank_dest, 0, comm_grid, &request);
-
-  coord_src[0] = mycoords[0]+1; coord_src[1] + mycoords[1];
-  MPI_Cart_rank(comm_grid, coords_src, &rank_src);  
-  MPI_Irecv((void*)&U.at(imax,0), jmax, MPI_DOUBLE, rank_src, 0, comm_grid, &request);
-  MPI_Wait(&request,&status);
+//   MPI_Cart_coords(comm_grid, myrank, 2, mycoords);
 
 
-  std::vector<double> buffer_send(imax), buffer_recv(imax);
-  // send up
-  for(unsigned i=0 i<imax; ++i){
-    buffer_send[i] = U.at(i,jmax);
-  }
-  coord_dest[0] = mycoords[0]; coord_dest[1] = mycoords[1]+1;
-  MPI_Cart_rank(comm_grid, coords_dest, &rank_dest);
-  MPI_Isend((void*)buffer_send.data(), imax, MPI_DOUBLE, rank_dest, 0, comm_grid, &request);
+//   // send right
+//   coord_dest[0] = mycoords[0]+1; coord_dest[1] = mycoords[1];
+//   MPI_Cart_rank(comm_grid, coords_dest, &rank_dest);
+//   MPI_Isend((void*)&U.at(imax,0), jmax, MPI_DOUBLE, rank_dest, 0, comm_grid, &request);
 
-  coord_src[0] = mycoords[0]; coord_src[1] = mycoords[1]-1;
-  MPI_Cart_rank(comm_grid, coords_src, &rank_src);  
-  MPI_Irecv((void*)buffer_recv.data(), imax, MPI_DOUBLE, rank_src, 0, comm_grid, &request);
-  MPI_Wait(&request,&status);
-  for(unsigned i=0 i<imax; ++i){
-    U.at(i,0) = buffer_recv[i];
-  }  
+//   coord_src[0] = mycoords[0]-1; coord_src[1] = mycoords[1];
+//   MPI_Cart_rank(comm_grid, coords_src, &rank_src);  
+//   MPI_Irecv((void*)&U.at(0,0), jmax, MPI_DOUBLE, rank_src, 0, comm_grid, &request);
+//   MPI_Wait(&request,&status);
 
-  // send down
-  for(unsigned i=0 i<imax; ++i){
-    buffer_send[i] = U.at(i,0);
-  }
-  coord_dest[0] = mycoords[0]; coord_dest[1] = mycoords[1]-1;
-  MPI_Cart_rank(comm_grid, coords_dest, &rank_dest);
-  MPI_Isend((void*)buffer_send.data(), imax, MPI_DOUBLE, rank_dest, 0, comm_grid, &request);
+//   // send left
+//   coord_dest[0] = mycoords[0]-1; coord_dest[1] = mycoords[1];
+//   MPI_Cart_rank(comm_grid, coords_dest, &rank_dest);
+//   MPI_Isend((void*)&U.at(0,0), jmax, MPI_DOUBLE, rank_dest, 0, comm_grid, &request);
 
-  coord_src[0] = mycoords[0]; coord_src[1] = mycoords[1]+1;
-  MPI_Cart_rank(comm_grid, coords_src, &rank_src);  
-  MPI_Irecv((void*)buffer_recv.data(), imax, MPI_DOUBLE, rank_src, 0, comm_grid, &request);
-  MPI_Wait(&request,&status);
-  for(unsigned i=0 i<imax; ++i){
-    U.at(i,jmax) = buffer_recv[i];
-  }    
-}
+//   coord_src[0] = mycoords[0]+1; coord_src[1] + mycoords[1];
+//   MPI_Cart_rank(comm_grid, coords_src, &rank_src);  
+//   MPI_Irecv((void*)&U.at(imax,0), jmax, MPI_DOUBLE, rank_src, 0, comm_grid, &request);
+//   MPI_Wait(&request,&status);
+
+
+//   std::vector<double> buffer_send(imax), buffer_recv(imax);
+//   // send up
+//   for(unsigned i=0 i<imax; ++i){
+//     buffer_send[i] = U.at(i,jmax);
+//   }
+//   coord_dest[0] = mycoords[0]; coord_dest[1] = mycoords[1]+1;
+//   MPI_Cart_rank(comm_grid, coords_dest, &rank_dest);
+//   MPI_Isend((void*)buffer_send.data(), imax, MPI_DOUBLE, rank_dest, 0, comm_grid, &request);
+
+//   coord_src[0] = mycoords[0]; coord_src[1] = mycoords[1]-1;
+//   MPI_Cart_rank(comm_grid, coords_src, &rank_src);  
+//   MPI_Irecv((void*)buffer_recv.data(), imax, MPI_DOUBLE, rank_src, 0, comm_grid, &request);
+//   MPI_Wait(&request,&status);
+//   for(unsigned i=0 i<imax; ++i){
+//     U.at(i,0) = buffer_recv[i];
+//   }  
+
+//   // send down
+//   for(unsigned i=0 i<imax; ++i){
+//     buffer_send[i] = U.at(i,0);
+//   }
+//   coord_dest[0] = mycoords[0]; coord_dest[1] = mycoords[1]-1;
+//   MPI_Cart_rank(comm_grid, coords_dest, &rank_dest);
+//   MPI_Isend((void*)buffer_send.data(), imax, MPI_DOUBLE, rank_dest, 0, comm_grid, &request);
+
+//   coord_src[0] = mycoords[0]; coord_src[1] = mycoords[1]+1;
+//   MPI_Cart_rank(comm_grid, coords_src, &rank_src);  
+//   MPI_Irecv((void*)buffer_recv.data(), imax, MPI_DOUBLE, rank_src, 0, comm_grid, &request);
+//   MPI_Wait(&request,&status);
+//   for(unsigned i=0 i<imax; ++i){
+//     U.at(i,jmax) = buffer_recv[i];
+//   }    
+// }

@@ -35,12 +35,38 @@ REAL compDelt(Config::geo geoConfig, Config::time timeConfig, Config::constants 
 int main(int argc, char* argv[])
 {  
   MPI_Comm comm_grid;
-  Config conf{"config_STEP"};
-  int rank, nprocs;
   MPI_Init(0, 0);
-  
-  init_MPI_Grid(conf._geo, comm_grid);
+  init_MPI_Grid(comm_grid);
 
+  int rank = get_MPI_Comm_rank(comm_grid);
+  int io[2];
+
+  Config conf{"config_DRIVEN_CAVITY", comm_grid};
+
+  double P_0 = rank;
+  Matrix Pressure{conf._geo.imax + 2, conf._geo.jmax + 2, P_0};
+
+  if(rank==0){
+    std::cout << conf._geo.imax << " " << conf._geo.jmax << std::endl;
+    for(int j=0; j<Pressure.getRows(); ++j)
+      for(int i=0; i<Pressure.getCols(); ++i)
+	Pressure.at(i,j) = i+10;
+    auto coords = get_MPI_Cart_coords(comm_grid, 2);
+    Pressure.print(std::to_string(coords[0]+1)+" "+std::to_string(coords[1]+1));
+  }
+
+  Matrix_exchange(comm_grid, Pressure);
+  
+  if(rank==0){
+    MPI_Status status;
+    Matrix M{conf._geo.imax + 2, conf._geo.jmax + 2, 0};
+    MPI_Recv((void*)M.begin(), (conf._geo.imax+2)*(conf._geo.jmax+2), MPI_DOUBLE, 1, 0, comm_grid, &status);
+    M.print("");
+    Pressure.print("");
+  }else if(rank==1){
+    MPI_Send((void*)Pressure.begin(), (conf._geo.imax+2)*(conf._geo.jmax+2), MPI_DOUBLE, 0, 0, comm_grid);
+  }
+  
   MPI_Finalize();
   
   // std::string cfg_PROBLEM;
@@ -80,7 +106,6 @@ int main(int argc, char* argv[])
   
   // Geometry geometry(conf._geo, initGeometry_PROBLEM);
   
-  // Matrix Pressure{conf._geo.imax + 2, conf._geo.jmax + 2, conf._constants.PI};
   // Matrix Div_velocity{conf._geo.imax + 1, conf._geo.jmax + 1, 0};
   // Velocity Velocity{conf._geo, conf._constants, conf._bc, geometry, bc_sp_PROBLEM};
   

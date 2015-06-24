@@ -9,8 +9,6 @@
 #include "differences.h"
 #include "geometry.h"
 
-
-
 // computes the residual
 REAL comp_res(const Config::geo& geoConfig, const Geometry& geometry, const Matrix& P, const Matrix& rhs)
 {
