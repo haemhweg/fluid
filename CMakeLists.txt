@@ -15,7 +15,7 @@ include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 ######################################################
 ## add C++11 flag
 if(UNIX)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
 endif()
 
 set(SRCPATH "${PROJECT_SOURCE_DIR}/src")

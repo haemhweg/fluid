@@ -55,15 +55,17 @@ int main(int argc, char* argv[])
     Pressure.print(std::to_string(coords[0]+1)+" "+std::to_string(coords[1]+1));
   }
 
+  MPI_Barrier(comm_grid);
   Matrix_exchange(comm_grid, Pressure);
+  MPI_Barrier(comm_grid);
   
   if(rank==0){
     MPI_Status status;
     Matrix M{conf._geo.imax + 2, conf._geo.jmax + 2, 0};
-    MPI_Recv((void*)M.begin(), (conf._geo.imax+2)*(conf._geo.jmax+2), MPI_DOUBLE, 1, 0, comm_grid, &status);
+    MPI_Recv((void*)M.begin(), (conf._geo.imax+2)*(conf._geo.jmax+2), MPI_DOUBLE, 2, 0, comm_grid, &status);
     M.print("");
     Pressure.print("");
-  }else if(rank==1){
+  }else if(rank==2){
     MPI_Send((void*)Pressure.begin(), (conf._geo.imax+2)*(conf._geo.jmax+2), MPI_DOUBLE, 0, 0, comm_grid);
   }
   

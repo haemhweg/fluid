@@ -9,9 +9,9 @@
 
 enum CELL { FLUID=0, BLOCK, B_N, B_O, B_S, B_W, B_NW, B_SW, B_SO, B_NO };
 
-using special_boundary_fct = std::function<void(const unsigned, const unsigned, Matrix&, Matrix&)>;
+typedef std::function<void(const unsigned, const unsigned, Matrix&, Matrix&)> special_boundary_fct;
 
-using init_geometry_fct = std::function<std::vector<CELL>(const Config::geo& geoConfig)>;
+typedef std::function<std::vector<CELL>(const Config::geo& geoConfig)> init_geometry_fct;
 
 void bc_DRIVEN_CAVITY(const unsigned imax, const unsigned jmax, Matrix& U, Matrix&); 
 
