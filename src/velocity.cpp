@@ -10,6 +10,7 @@
 #include "real.h"
 #include "differences.h"
 #include "geometry.h"
+#include "tracing.h"
 
 
 void Velocity::print()
@@ -310,4 +311,59 @@ void Velocity::update(const REAL delt, const Matrix& P)
       V.at(i,j) = G.at(i,j) - delt/dely * (P.at(i,j+1) - P.at(i,j));
     }
   }
+}
+
+
+Particle Velocity::advanceParticle(Particle p, REAL delt) {
+
+  REAL x = p.x;
+  REAL y = p.y;
+
+  const REAL delx = geoConfig.delx;
+  const REAL dely = geoConfig.dely;
+
+  REAL x1, x2, y1, y2, u1, u2, u3, u4, v1, v2, v3, v4, u, v;
+
+  unsigned int i, j;
+
+  // interpolate U
+
+  i = int(x / delx) + 1;
+  j = int((y + dely / 2) / dely) + 1;
+
+  x1 = (i - 1) * delx;
+  x2 = i * delx;
+  y1 = (j - 3/2) * dely;
+  y2 = (j - 1/2) * dely;
+
+  u1 = U.at(i-1, j-1);
+  u2 = U.at(i, j-1);
+  u3 = U.at(i-1, j);
+  u4 = U.at(i, j);
+
+  u = ( (x2 - x) * (y2 - y) * u1 + (x - x1) * (y2 - y) * u2 + (x2 - x) * (y - y1) * u3 + (x - x1) * (y - y1) * u4 ) / delx / dely;
+
+  // interpolate V
+
+  i = int( (x + delx / 2) / delx) + 1;
+  j = int( y / dely ) + 1;
+
+  x1 = (i - 3/2) * delx;
+  x2 = (i - 1/2) * delx;
+  y1 = (j - 1) * dely;
+  y2 = j * dely;
+
+  v1 = V.at(i-1, j-1);
+  v2 = V.at(i, j-1);
+  v3 = V.at(i-1, j);
+  v4 = V.at(i, j);
+
+  v = ( (x2 - x) * (y2 - y) * v1 + (x - x1) * (y2 - y) * v2 + (x2 - x) * (y - y1) * v3 + (x - x1) * (y - y1) * v4 ) / delx / dely;
+
+  // update values
+  x = x + delt * u;
+  y = y + delt * v;
+
+  return Particle(x, y);
+
 }

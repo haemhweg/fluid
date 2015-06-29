@@ -1,9 +1,9 @@
-imax 100
+imax 20
 jmax 20
 xlength 10
-ylength 2
+ylength 10
 
-t_end 20
+t_end 100
 tau 0.5
 del_vec 2
 
@@ -14,18 +14,18 @@ itmax 500
 
 GX 0.0
 GY 0.0
-RE 1000
-UI 1.0
+RE 10
+UI 0.0
 VI 0.0
 PI 0.0
 
-wl 3
-wr 3
-wt 1
-wb 1
+wl 1
+wr 1
+wt 3
+wb 3
 
 N 8
 x1 1
-x2 1
-y1 1.5
-y2 5
+x2 9
+y1 1
+y2 9

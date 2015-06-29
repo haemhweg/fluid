@@ -43,6 +43,11 @@ struct Config
     BCType wl, wr, wt, wb;
     std::string problem="default";
   };
+  struct tracing
+  {
+    unsigned int N;
+    REAL x1, x2, y1, y2;
+  };
 
 
   geo _geo=geo();
@@ -50,6 +55,7 @@ struct Config
   solver _solver=solver();
   constants _constants=constants();
   boundaryCondition _bc=boundaryCondition();
+  tracing _tracing=tracing();
 
   Config(const std::string& filename);
 };
