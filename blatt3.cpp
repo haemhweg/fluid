@@ -37,14 +37,14 @@ REAL compDelt(Config::geo geoConfig, Config::time timeConfig, Config::constants 
 }
 
 int main(int argc, char* argv[])
-{  
-  Config conf{"input/config_DRIVEN_CAVITY"};
+{
+  Config conf{"input/config_STEP"};
 
-  Geometry geometry(conf._geo, geometry_DRIVEN_CAVITY);
+  Geometry geometry(conf._geo, geometry_STEP);
 
   Matrix Pressure{conf._geo.imax + 2, conf._geo.jmax + 2, conf._constants.PI};
   Matrix Div_velocity{conf._geo.imax + 1, conf._geo.jmax + 1, 0};
-  Velocity Velocity{conf._geo, conf._constants, conf._bc, geometry, bc_DRIVEN_CAVITY};
+  Velocity Velocity{conf._geo, conf._constants, conf._bc, geometry, bc_STEP};
 
   Tracer tracer(conf._tracing, &Velocity);
 
@@ -60,7 +60,6 @@ int main(int argc, char* argv[])
     delt = compDelt(conf._geo, conf._time, conf._constants, Velocity);
 
     Velocity.setDivergenceIntermidiate(delt, Div_velocity);
-
     auto it_res = SOR_Poisson(conf._geo, conf._solver, geometry, Pressure, Div_velocity);
 
     Velocity.update(delt, Pressure);

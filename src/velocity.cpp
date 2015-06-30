@@ -10,8 +10,6 @@
 #include "real.h"
 #include "differences.h"
 #include "geometry.h"
-#include "tracing.h"
-
 
 void Velocity::print()
 {
@@ -314,10 +312,7 @@ void Velocity::update(const REAL delt, const Matrix& P)
 }
 
 
-Particle Velocity::advanceParticle(Particle p, REAL delt) {
-
-  REAL x = p.x;
-  REAL y = p.y;
+std::pair<REAL, REAL> Velocity::advanceParticle(REAL x, REAL y, REAL delt) {
 
   const REAL delx = geoConfig.delx;
   const REAL dely = geoConfig.dely;
@@ -364,6 +359,6 @@ Particle Velocity::advanceParticle(Particle p, REAL delt) {
   x = x + delt * u;
   y = y + delt * v;
 
-  return Particle(x, y);
+  return std::make_pair(x, y);
 
 }

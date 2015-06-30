@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <utility>
 #include <algorithm>
 #include <iterator>
 #include <vector>
@@ -192,6 +193,26 @@ Config::Config(const std::string & filename) {
       if (!is_set[25]) {
         is_set[25] = true;
         file >> _tracing.y2;
+      }
+    } else if (input == "tr") {
+
+      if (!is_set[26]) {
+        int tr;
+        is_set[26] = true;
+        file >> tr;
+        _tracing.tr = static_cast < TracingType > (tr);
+      }
+    } else if (input == "delt_write") {
+
+      if (!is_set[27]) {
+        is_set[27] = true;
+        file >> _tracing.delt_write;
+      }
+    } else if (input == "delt_inject") {
+
+      if (!is_set[28]) {
+        is_set[28] = true;
+        file >> _tracing.delt_inject;
       }
     }
   }

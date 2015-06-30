@@ -6,6 +6,7 @@
 #include "real.h"
 
 enum  BCType { NO_SLIP=1, FREE_SLIP=2, OUTFLOW=3 };
+enum  TracingType { PATHLINES=1, STREAKLINES=2 };
 
 struct Config
 {
@@ -47,6 +48,8 @@ struct Config
   {
     unsigned int N;
     REAL x1, x2, y1, y2;
+    TracingType tr;
+    REAL delt_write, delt_inject;
   };
 
 

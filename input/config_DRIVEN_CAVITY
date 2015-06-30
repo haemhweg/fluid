@@ -1,5 +1,5 @@
-imax 20
-jmax 20
+imax 10
+jmax 10
 xlength 10
 ylength 10
 
@@ -29,3 +29,6 @@ x1 1
 x2 9
 y1 1
 y2 9
+tr 2
+delt_write 1
+delt_inject 1

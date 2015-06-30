@@ -9,7 +9,6 @@
 #include "matrix.h"
 #include "specialBoundary.h"
 #include "geometry.h"
-#include "tracing.h"
 
 class Velocity
 {
@@ -62,7 +61,7 @@ class Velocity
   REAL getMaxU() const { return U.getMax(); }
   REAL getMaxV() const { return V.getMax(); }
 
-  Particle advanceParticle(Particle p, REAL delt);
+  std::pair<REAL, REAL> advanceParticle(REAL x, REAL y, REAL delt);
 
   void print();
 

@@ -1,7 +1,7 @@
 #ifndef __TRACING_H__
 #define __TRACING_H__
 
-#include <vector>
+#include <deque>
 #include <utility>
 
 #include "config.h"
@@ -18,12 +18,15 @@ class ParticleLine {
 public:
 	// constructor with initial values
 	ParticleLine(Velocity * velocity_, REAL, REAL);
-	void advance(REAL delt);
 	void output();
+	void inject();
+	void advance(REAL delt, TracingType tr);
 
 private:
 	Velocity * velocity;
-	std::vector<Particle> particles;
+	// save the values of the first particle in case we need to create inject a new one for streaklines
+	REAL x, y;
+	std::deque<Particle> particles;
 
 };
 
@@ -32,12 +35,14 @@ public:
 	// pass configs and pointer to velocity
 	Tracer(const Config::tracing tracing_, Velocity * velocity_);
 	void advance(REAL delt);
+	void inject();
 	void output();
 
 private:
 	Config::tracing tracingConfig;
 	Velocity * velocity;
-	std::vector<ParticleLine> particleLines;
+	std::deque<ParticleLine> particleLines;
+	REAL delt_write_residual, delt_inject_residual;
 
 };
 
