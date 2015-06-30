@@ -241,8 +241,8 @@ void Velocity::updateIntermidiate(const REAL delt)
   }
 
   // Set boundary values of F and G
-  Matrix_exchange(comm_grid, F);
-  Matrix_exchange(comm_grid, G);
+  MPI_Matrix_exchange(comm_grid, F);
+  MPI_Matrix_exchange(comm_grid, G);
   auto boundary = geometry.get_boundary();
   for(const auto& cell : boundary){
     unsigned i = cell.first, j = cell.second;

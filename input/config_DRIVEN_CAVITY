@@ -10,7 +10,7 @@ del_vec 2
 eps 1e-3
 omega 1.7
 alpha 0.9
-itmax 500
+itmax 50
 
 GX 0.0
 GY 0.0

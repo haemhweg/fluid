@@ -30,7 +30,7 @@ int get_MPI_Comm_rank(const MPI_Comm& comm)
 
   return rank;
 }
-int get_MPI_Cart_rank(const MPI_Comm& comm, const int* coords)
+int get_MPI_Cart_rank(const MPI_Comm& comm, int* coords)
 {
   int rank;
 
@@ -81,7 +81,7 @@ int init_MPI_Grid(MPI_Comm& comm_grid)
 }
 
 
-void Matrix_exchange(const MPI_Comm& comm_grid, Matrix& M)
+void MPI_Matrix_exchange(const MPI_Comm& comm_grid, Matrix& M)
 {
   std::array<int,2> dims = get_MPI_Dims_create(MPI_COMM_WORLD,2);
   std::array<int,2> coords_src, coords_dest, mycoords = get_MPI_Cart_coords(comm_grid,2);
@@ -280,10 +280,11 @@ void MPI_VectorFieldVTK(const MPI_Comm& comm_grid, const std::string& filename, 
       	for(int i=0; i<dims[0]; ++i){   
       	  if(coords[0]==i && coords[1]==j){
       	    std::copy_n(U.begin()+k*M_loc, M_loc, U_tmp.begin());
+      	    std::copy_n(V.begin()+k*M_loc, M_loc, V_tmp.begin());
       	  }else{
 	    int rank_src = get_MPI_Cart_rank(comm_grid, std::array<int,2>{i,j}.data());
-      	    MPI_Recv((void*)U_tmp.data(), M_loc_ij[i][j], MPI_DOUBLE, rank_src, nprocs*nprocs*rank_src+nprocs*k, comm_grid, 
-		     &status);
+	    MPI_Recv((void*)U_tmp.data(), M_loc_ij[i][j], MPI_DOUBLE, rank_src, nprocs*nprocs*rank_src+nprocs*k, comm_grid, 
+	     	     &status);
       	    MPI_Recv((void*)V_tmp.data(), M_loc_ij[i][j], MPI_DOUBLE, rank_src, nprocs*nprocs*nprocs*rank_src+nprocs*k, comm_grid, 
 		     &status);
       	  }	  
