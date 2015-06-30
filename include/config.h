@@ -42,15 +42,15 @@ struct Config
   struct boundaryCondition
   {
     BCType wl, wr, wt, wb;
-    std::string problem;
+    std::string problem="default";
   };
 
 
-  geo _geo;
-  time _time;
-  solver _solver;
-  constants _constants;
-  boundaryCondition _bc;
+  geo _geo=geo();
+  time _time=time();
+  solver _solver=solver();
+  constants _constants=constants();
+  boundaryCondition _bc=boundaryCondition();
 
   Config(const std::string& filename, MPI_Comm comm_grid);
 };

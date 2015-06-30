@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <string>
+#include "mpi.h"
 
 #include "real.h"
 #include "config.h"
@@ -24,6 +25,7 @@ class Velocity
   const special_boundary_fct& updateSPBoundary;
 
   const Geometry& geometry;
+  const MPI_Comm& comm_grid;
 
   /**
    *
@@ -37,8 +39,8 @@ class Velocity
 
  public:
 
-   Velocity(const Config::geo geo_, const Config::constants constants_, const Config::boundaryCondition bc_, 
-	    const Geometry& geometry_, const special_boundary_fct& bc_sp_);
+   Velocity(const MPI_Comm& comm_grid, const Config::geo geo_, const Config::constants constants_, 
+	    const Config::boundaryCondition bc_, const Geometry& geometry_, const special_boundary_fct& bc_sp_);
 
 
   /**

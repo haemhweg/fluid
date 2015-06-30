@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
+#include <array>
 #include <cstdlib>
 #include "mpi.h"
 
@@ -170,10 +171,8 @@ Config::Config(const std::string& filename, MPI_Comm comm_grid)
   }
 
   if(std::equal(std::begin(is_set), std::end(is_set), std::begin(std::vector<bool>(21,true)))) {
-    std::vector<int> coords = get_MPI_Cart_coords(comm_grid, 2);      
-    std::vector<int> dims = get_MPI_Dims_create(MPI_COMM_WORLD, 2);   
-
-    unsigned imax = _geo.imax, jmax = _geo.jmax;
+    std::array<int,2> coords = get_MPI_Cart_coords(comm_grid, 2);      
+    std::array<int,2> dims = get_MPI_Dims_create(MPI_COMM_WORLD, 2);   
 
     if(coords[0]==dims[0]-1 && dims[0]>1){
       _geo.imax -= (dims[0]-1)*(_geo.imax/dims[0]);

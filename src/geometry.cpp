@@ -2,10 +2,12 @@
 #include <functional>
 #include <utility>
 #include <iostream>
+#include "mpi.h"
 
 #include "geometry.h"
+#include "parallel.h"
 
-Geometry::Geometry(const Config::geo& geoConfig, const init_geometry_fct& geoInit)
+Geometry::Geometry(const MPI_Comm& comm_grid, const Config::geo& geoConfig, const init_geometry_fct& geoInit)
   : cells(geoInit(geoConfig)), imax(geoConfig.imax), jmax(geoConfig.jmax), cells_boundary(), cells_fluid()
 {
   auto coords = get_MPI_Cart_coords(comm_grid, 2);

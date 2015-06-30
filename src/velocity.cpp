@@ -10,6 +10,7 @@
 #include "real.h"
 #include "differences.h"
 #include "geometry.h"
+#include "parallel.h"
 
 
 void Velocity::print()
@@ -35,11 +36,11 @@ void Velocity::print()
 }
 
 
-Velocity::Velocity(const Config::geo geo_, const Config::constants constants_, const Config::boundaryCondition bc_, 
-		   const Geometry& geometry_, const special_boundary_fct& bc_sp_) 
+Velocity::Velocity(const MPI_Comm& comm_grid_, const Config::geo geo_, const Config::constants constants_, 
+		   const Config::boundaryCondition bc_, const Geometry& geometry_, const special_boundary_fct& bc_sp_) 
   : F(geo_.imax+1, geo_.jmax+1), G(geo_.imax+1, geo_.jmax+1), U(geo_.imax+2, geo_.jmax+2, 0), 
     V(geo_.imax+2, geo_.jmax+2, 0), geoConfig(geo_), constantsConfig(constants_), 
-    bc(bc_), updateSPBoundary(bc_sp_), geometry(geometry_)
+    bc(bc_), updateSPBoundary(bc_sp_), geometry(geometry_), comm_grid(comm_grid_)
 { 
   const REAL UI = constants_.UI;
   const REAL VI = constants_.VI;

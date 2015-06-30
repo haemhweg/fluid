@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <functional>
+#include "mpi.h"
 
 #include "config.h"
 #include "specialBoundary.h"
@@ -17,7 +18,7 @@ class Geometry
 
  public:
 
-  Geometry(const Config::geo& geoConfig, const init_geometry_fct& geoInit);
+  Geometry(const MPI_Comm& comm_grid, const Config::geo& geoConfig, const init_geometry_fct& geoInit);
 
   CELL at(unsigned i, unsigned j) const { return cells[i*(jmax+2)+j]; }
   CELL& at(unsigned i, unsigned j) { return cells[i*(jmax+2)+j]; }

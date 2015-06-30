@@ -39,36 +39,72 @@ int main(int argc, char* argv[])
   init_MPI_Grid(comm_grid);
 
   int rank = get_MPI_Comm_rank(comm_grid);
-  int io[2];
 
   Config conf{"config_DRIVEN_CAVITY", comm_grid};
 
-  double P_0 = rank;
-  Matrix Pressure{conf._geo.imax + 2, conf._geo.jmax + 2, P_0};
+  double F_0 = rank, G_0 = rank;
+  Matrix F{conf._geo.imax + 2, conf._geo.jmax + 2, F_0};
+  Matrix G{conf._geo.imax + 2, conf._geo.jmax + 2, G_0};
 
+  // MPI_Barrier(comm_grid);
+  // Matrix_exchange(comm_grid, Pressure);
+  // MPI_Barrier(comm_grid);
   if(rank==0){
-    std::cout << conf._geo.imax << " " << conf._geo.jmax << std::endl;
-    for(int j=0; j<Pressure.getRows(); ++j)
-      for(int i=0; i<Pressure.getCols(); ++i)
-	Pressure.at(i,j) = i+10;
-    auto coords = get_MPI_Cart_coords(comm_grid, 2);
-    Pressure.print(std::to_string(coords[0]+1)+" "+std::to_string(coords[1]+1));
+    system("rm *.vtk");
   }
-
-  MPI_Barrier(comm_grid);
-  Matrix_exchange(comm_grid, Pressure);
-  MPI_Barrier(comm_grid);
   
+  MPI_Barrier(comm_grid);
+  MPI_VectorFieldVTK(comm_grid, "test.vtk", "test", F, G, conf._geo.delx, conf._geo.dely);
+  int size = F.getCols()*F.getRows();
   if(rank==0){
     MPI_Status status;
-    Matrix M{conf._geo.imax + 2, conf._geo.jmax + 2, 0};
-    MPI_Recv((void*)M.begin(), (conf._geo.imax+2)*(conf._geo.jmax+2), MPI_DOUBLE, 2, 0, comm_grid, &status);
-    M.print("");
-    Pressure.print("");
-  }else if(rank==2){
-    MPI_Send((void*)Pressure.begin(), (conf._geo.imax+2)*(conf._geo.jmax+2), MPI_DOUBLE, 0, 0, comm_grid);
+    Matrix F1{conf._geo.imax + 2, conf._geo.jmax + 2, F_0};
+    Matrix G1{conf._geo.imax + 2, conf._geo.jmax + 2, G_0};
+    Matrix F2{conf._geo.imax + 2, conf._geo.jmax + 2, F_0};
+    Matrix G2{conf._geo.imax + 2, conf._geo.jmax + 2, G_0};
+    Matrix F3{conf._geo.imax + 2, conf._geo.jmax + 2, F_0};
+    Matrix G3{conf._geo.imax + 2, conf._geo.jmax + 2, G_0};
+    Matrix F_{8, 8, F_0};
+    Matrix G_{8, 8, G_0};
+
+    int rank_src = get_MPI_Cart_rank(comm_grid, std::array<int,2>{0,1}.data());
+    MPI_Recv((void*)F1.begin(), size, MPI_DOUBLE, rank_src, rank_src, comm_grid, &status);
+    MPI_Recv((void*)G1.begin(), size, MPI_DOUBLE, rank_src, size*rank_src, comm_grid, &status);
+
+    rank_src = get_MPI_Cart_rank(comm_grid, std::array<int,2>{1,0}.data());
+    MPI_Recv((void*)F2.begin(), size, MPI_DOUBLE, rank_src, rank_src, comm_grid, &status);
+    MPI_Recv((void*)G2.begin(), size, MPI_DOUBLE, rank_src, size*rank_src, comm_grid, &status);
+
+    rank_src = get_MPI_Cart_rank(comm_grid, std::array<int,2>{1,1}.data());
+    MPI_Recv((void*)F3.begin(), size, MPI_DOUBLE, rank_src, rank_src, comm_grid, &status);
+    MPI_Recv((void*)G3.begin(), size, MPI_DOUBLE, rank_src, size*rank_src, comm_grid, &status);
+
+    for(unsigned i=0; i<F_.getRows(); ++i){
+      for(unsigned j=0; j<F_.getCols(); ++j){
+	if(i<4 && j<4){
+	  F_.at(i,j) = F.at(i,j);
+	  G_.at(i,j) = G.at(i,j);
+	}else if(i>=4 && j<4){
+	  F_.at(i,j) = F2.at(i+1,j);
+	  G_.at(i,j) = G2.at(i+1,j);
+	}else if(i<4 && j>=4){
+	  F_.at(i,j) = F1.at(i,j+1);
+	  G_.at(i,j) = G1.at(i,j+1);
+	}else if(i>=4 && j>=4){
+	  F_.at(i,j) = F3.at(i+1,j+1);
+	  G_.at(i,j) = G3.at(i+1,j+1);
+	}
+      }
+    }
+    writeVectorFieldVTK("test2.vtk", "test", F_, G_, conf._geo.delx, conf._geo.dely);
   }
+  else{
+    MPI_Send((void*)F.begin(), size, MPI_DOUBLE, 0, rank, comm_grid);
+    MPI_Send((void*)G.begin(), size, MPI_DOUBLE, 0, size*rank, comm_grid);
+  }
+  MPI_Barrier(comm_grid);
   
+
   MPI_Finalize();
   
   // std::string cfg_PROBLEM;
