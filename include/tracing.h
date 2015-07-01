@@ -18,9 +18,10 @@ class ParticleLine {
 public:
 	// constructor with initial values
 	ParticleLine(Velocity * velocity_, REAL, REAL);
-	void output();
+	void output(std::ofstream & file);
 	void inject();
 	void advance(REAL delt, TracingType tr);
+	size_t getSize();
 
 private:
 	Velocity * velocity;
@@ -33,13 +34,15 @@ private:
 class Tracer {
 public:
 	// pass configs and pointer to velocity
-	Tracer(const Config::tracing tracing_, Velocity * velocity_);
+	size_t writeStep = 0;
+	Tracer(const Config::tracing tracing_, const Config::geo geo_, Velocity * velocity_);
 	void advance(REAL delt);
 	void inject();
-	void output();
+	void output(size_t);
 
 private:
 	Config::tracing tracingConfig;
+	Config::geo geoConfig;
 	Velocity * velocity;
 	std::deque<ParticleLine> particleLines;
 	REAL delt_write_residual, delt_inject_residual;

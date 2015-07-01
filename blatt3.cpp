@@ -38,15 +38,15 @@ REAL compDelt(Config::geo geoConfig, Config::time timeConfig, Config::constants 
 
 int main(int argc, char* argv[])
 {
-  Config conf{"input/config_STEP"};
+  Config conf{"input/config_DRIVEN_CAVITY"};
 
-  Geometry geometry(conf._geo, geometry_STEP);
+  Geometry geometry(conf._geo, geometry_DRIVEN_CAVITY);
 
   Matrix Pressure{conf._geo.imax + 2, conf._geo.jmax + 2, conf._constants.PI};
   Matrix Div_velocity{conf._geo.imax + 1, conf._geo.jmax + 1, 0};
-  Velocity Velocity{conf._geo, conf._constants, conf._bc, geometry, bc_STEP};
+  Velocity Velocity{conf._geo, conf._constants, conf._bc, geometry, bc_DRIVEN_CAVITY};
 
-  Tracer tracer(conf._tracing, &Velocity);
+  Tracer tracer(conf._tracing, conf._geo, &Velocity);
 
   REAL t=0;
   REAL delt=0;

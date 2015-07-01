@@ -3,13 +3,15 @@
 
 #include <deque>
 #include <utility>
+#include <sstream>
 #include <iostream>
+#include <fstream>
 
 #include "tracing.h"
 #include "velocity.h"
 #include "config.h"
 
-Tracer::Tracer(const Config::tracing tracing_, Velocity * velocity_) : velocity(velocity_) , tracingConfig(tracing_) , particleLines() {
+Tracer::Tracer(const Config::tracing tracing_, const Config::geo geo_, Velocity * velocity_) : velocity(velocity_) , tracingConfig(tracing_) , geoConfig(geo_) , particleLines() {
 
 	delt_write_residual = tracingConfig.delt_write;
 	delt_inject_residual = tracingConfig.delt_inject;
@@ -39,19 +41,47 @@ void Tracer::advance(REAL delt) {
 	delt_write_residual -= delt;
 	if(delt_write_residual < 0) {
 		delt_write_residual = tracingConfig.delt_write;
-		output();
+		output(writeStep++);
 	}
 
-	for(int i = 0; i < particleLines.size(); ++i) {
+	for(size_t i = 0; i < particleLines.size(); ++i) {
 		particleLines[i].advance(delt, tracingConfig.tr);
 	}
 
 }
 
-void Tracer::output() {
+void Tracer::output(size_t writeStep) {
 
-	ParticleLine first = particleLines[0];
-	first.output();
+	std::ostringstream filename;
+
+	filename << "Streaklines" << writeStep << ".vtk";
+
+	std::ofstream fs(filename.str());
+
+	fs << std::scientific;
+
+	fs << "# vtk DataFile Version 3.0\n"
+     << "Streaklines\n"
+     << "ASCII\n"
+     << "DATASET POLYDATA\n";
+
+    size_t numPoints = particleLines.size() * particleLines[0].getSize();
+
+    fs << "POINTS " << numPoints << " double\n";
+
+    for(size_t i = 0; i < particleLines.size(); i++) {
+    	particleLines[i].output(fs);
+    }
+
+    fs << "LINES " << particleLines.size() << " " << (numPoints + particleLines.size()) << std::endl;
+
+    for(size_t i = 0; i < particleLines.size(); i++) {
+    	fs << particleLines[i].getSize() << " ";
+    	for(size_t j = i * particleLines[i].getSize(); j < (i + 1) * particleLines[i].getSize(); j++) {
+    		fs << j << " ";
+    	}
+    	fs << std::endl;
+    }
 
 }
 
@@ -91,14 +121,23 @@ void ParticleLine::advance(REAL delt, TracingType tr) {
 			std::pair<REAL, REAL> vals = velocity->advanceParticle(currentParticle->x, currentParticle->y, delt);
 			currentParticle->x = vals.first;
 			currentParticle->y = vals.second;
+			// check if leaves fluid area!
 		}
 	}
 
 }
 
-void ParticleLine::output() {
+void ParticleLine::output(std::ofstream & fs) {
 
-	std::cout << particles.size() << std::endl;
+	for(size_t i = 0; i < particles.size(); ++i) {
+		fs << particles[i].x << " " << particles[i].y << " 0" << std::endl;
+	}
+
+}
+
+size_t ParticleLine::getSize() {
+
+	return particles.size();
 
 }
 
