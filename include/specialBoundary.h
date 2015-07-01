@@ -1,13 +1,17 @@
-#ifndef SPECIALBOUNDARY
-#define SPECIALBOUNDARY
+#ifndef PROBLEMS
+#define PROBLEMS
 
 #include <functional>
 #include <vector>
 
-#include "geometry.h"
 #include "matrix.h"
+#include "config.h"
+
+enum CELL { FLUID=0, BLOCK, B_N, B_O, B_S, B_W, B_NW, B_SW, B_SO, B_NO };
 
 using special_boundary_fct = std::function<void(const unsigned, const unsigned, Matrix&, Matrix&)>;
+
+using init_geometry_fct = std::function<std::vector<CELL>(const Config::geo& geoConfig)>;
 
 void bc_DRIVEN_CAVITY(const unsigned imax, const unsigned jmax, Matrix& U, Matrix&); 
 

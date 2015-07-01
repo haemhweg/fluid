@@ -5,7 +5,7 @@
 
 #include "geometry.h"
 
-Geometry::Geometry(const Config::geo& geoConfig, const std::function<std::vector<CELL>(const Config::geo&)>& geoInit)
+Geometry::Geometry(const Config::geo& geoConfig, const init_geometry_fct& geoInit)
   : cells(geoInit(geoConfig)), imax(geoConfig.imax), jmax(geoConfig.jmax), cells_boundary(), cells_fluid()
 {
   for(unsigned i=1; i<imax+1; ++i){
