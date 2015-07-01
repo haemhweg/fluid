@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
   double F_0 = rank, G_0 = -rank;
   Matrix F{conf._geo.imax + 2, conf._geo.jmax + 2, 1};
   Matrix G{conf._geo.imax + 2, conf._geo.jmax + 2, G_0};
-  Matrix P{conf._geo.imax + 2, conf._geo.jmax + 2, 0};
+  Matrix P{conf._geo.imax + 2, conf._geo.jmax + 2, 0.};
 
   // MPI_Barrier(comm_grid);
   // Matrix_exchange(comm_grid, Pressure);
@@ -66,6 +66,7 @@ int main(int argc, char* argv[])
   // MPI_Barrier(comm_grid);
 
   MPI_Barrier(comm_grid);
+  //MPI_Matrix_exchange(comm_grid, F);
   SOR_Poisson(comm_grid, conf._geo, conf._solver, geometry, P, F);
   MPI_Barrier(comm_grid);
   
