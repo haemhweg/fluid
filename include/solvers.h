@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "config.h"
-#include "matrix.h"
+#include "field.h"
 #include "real.h"
 #include "geometry.h"
 
@@ -15,7 +15,7 @@
  *  @param solverConfig Contains parameter omega, residual error eps and maximal iteration number
  *  @return The iteration number and achieved accuracy of the solution
  */
-std::pair<unsigned, REAL> SOR_Poisson(const MPI_Comm& comm_grid, const Config::geo& geoConfig, const Config::solver solverConfig, 
-				      const Geometry& geometry, Matrix& P, const Matrix& rhs);
+std::pair<unsigned, REAL> SOR_Poisson(const Config::geo& geoConfig, const Config::solver solverConfig, 
+				      const Geometry& geometry, Field2D& P, const Field2D& rhs);
 
 #endif

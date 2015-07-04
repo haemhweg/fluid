@@ -2,18 +2,14 @@
 #include <functional>
 #include <utility>
 #include <iostream>
-#include "mpi.h"
 
 #include "geometry.h"
-#include "parallel.h"
 
-Geometry::Geometry(const MPI_Comm& comm_grid, const Config::geo& geoConfig, const init_geometry_fct& geoInit)
-  : cells(geoInit(comm_grid, geoConfig)), imax(geoConfig.imax), jmax(geoConfig.jmax), cells_boundary(), cells_fluid()
+Geometry::Geometry(const Config::geo& geoConfig, const init_geometry_fct& geoInit)
+  : cells(geoInit(geoConfig)), imax(geoConfig.imax), jmax(geoConfig.jmax), cells_boundary(), cells_fluid()
 {
-  auto coords = get_MPI_Cart_coords(comm_grid, 2);
-  auto dims = get_MPI_Dims_create(comm_grid, 2);
-  for(unsigned i=1; i<imax+1; ++i){
-    for(unsigned j=1; j<jmax+1; ++j){ 
+  for(unsigned j=1; j<jmax+1; ++j){ 
+    for(unsigned i=1; i<imax+1; ++i){
       if(at(i,j)==FLUID){
 	cells_fluid.emplace_back(std::make_pair(i,j));
       }
@@ -26,12 +22,10 @@ Geometry::Geometry(const MPI_Comm& comm_grid, const Config::geo& geoConfig, cons
 
 void Geometry::print()
 {
-  for (int j = jmax+1; j >=0 ; --j)
-    {
-      for (unsigned i = 0; i < imax+2; ++i)
-	{
-	  std::cout << int(at(i,j)) << "  ";
-	}
-      std::cout << std::endl;
+  for (int j = jmax+1; j >=0 ; --j){
+    for (unsigned i = 0; i < imax+2; ++i){
+      std::cout << int(at(i,j)) << "  ";
     }
+    std::cout << std::endl;
+  }
 }

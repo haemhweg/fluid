@@ -3,7 +3,7 @@
 
 #include "real.h"
 
-class Matrix;
+class Field2D;
 
 /**
  *  @brief Computes the second derivative of a function f(x) using the discretization
@@ -35,15 +35,15 @@ REAL dfg(const REAL h, const REAL alpha, const REAL f_r, const REAL f_m, const R
 
 
 
-REAL d2fdx(const REAL h, const Matrix& f, const unsigned i, const unsigned j);
-REAL d2fdy(const REAL h, const Matrix& f, const unsigned i, const unsigned j);
+REAL d2fdx(const REAL h, const Field2D& f, const unsigned i, const unsigned j);
+REAL d2fdy(const REAL h, const Field2D& f, const unsigned i, const unsigned j);
 
-REAL df2dx(const REAL h, const REAL alpha, const Matrix& f, const unsigned i, const unsigned j);
-REAL df2dy(const REAL h, const REAL alpha, const Matrix& f, const unsigned i, const unsigned j);
+REAL df2dx(const REAL h, const REAL alpha, const Field2D& f, const unsigned i, const unsigned j);
+REAL df2dy(const REAL h, const REAL alpha, const Field2D& f, const unsigned i, const unsigned j);
 
-REAL dfgdx(const REAL h, const REAL alpha, const Matrix& f, const Matrix& g, 
+REAL dfgdx(const REAL h, const REAL alpha, const Field2D& f, const Field2D& g, 
 	   const unsigned i, const unsigned j);
-REAL dfgdy(const REAL h, const REAL alpha, const Matrix& f, const Matrix& g, 
+REAL dfgdy(const REAL h, const REAL alpha, const Field2D& f, const Field2D& g, 
 	   const unsigned i, const unsigned j);
   
 

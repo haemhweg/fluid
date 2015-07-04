@@ -2,7 +2,7 @@
 
 #include "differences.h"
 #include "real.h"
-#include "matrix.h"
+#include "field.h"
 
 REAL d2f(const REAL h, const REAL f_l, const REAL f_m, const REAL f_r)
 {
@@ -23,31 +23,31 @@ REAL dfg(const REAL h, const REAL alpha, const REAL f_l, const REAL f_m, const R
 }
 
 
-REAL d2fdx(const REAL h, const Matrix& f, const unsigned i, const unsigned j)
+REAL d2fdx(const REAL h, const Field2D& f, const unsigned i, const unsigned j)
 {
   return d2f(h, f.at(i-1,j), f.at(i,j), f.at(i+1,j));
 }
-REAL d2fdy(const REAL h, const Matrix& f, const unsigned i, const unsigned j)
+REAL d2fdy(const REAL h, const Field2D& f, const unsigned i, const unsigned j)
 {
   return d2f(h, f.at(i,j-1), f.at(i,j), f.at(i,j+1));
 }
 
-REAL df2dx(const REAL h, const REAL alpha, const Matrix& f, const unsigned i, const unsigned j)
+REAL df2dx(const REAL h, const REAL alpha, const Field2D& f, const unsigned i, const unsigned j)
 {
   return df2(h, alpha, f.at(i-1,j), f.at(i,j), f.at(i+1,j));
 }
-REAL df2dy(const REAL h, const REAL alpha, const Matrix& f, const unsigned i, const unsigned j)
+REAL df2dy(const REAL h, const REAL alpha, const Field2D& f, const unsigned i, const unsigned j)
 {
   return df2(h, alpha, f.at(i,j-1), f.at(i,j), f.at(i,j+1));
 }
 
-REAL dfgdx(const REAL h, const REAL alpha, const Matrix& f, const Matrix& g, 
+REAL dfgdx(const REAL h, const REAL alpha, const Field2D& f, const Field2D& g, 
 	   const unsigned i, const unsigned j)
 {
   return dfg(h, alpha, g.at(i-1,j), g.at(i,j), g.at(i+1,j), f.at(i-1,j), f.at(i,j),
 	     f.at(i-1,j+1), f.at(i,j+1));
 }
-REAL dfgdy(const REAL h, const REAL alpha, const Matrix& f, const Matrix& g, 
+REAL dfgdy(const REAL h, const REAL alpha, const Field2D& f, const Field2D& g, 
 	   const unsigned i, const unsigned j)
 {
   return dfg(h, alpha, f.at(i,j-1), f.at(i,j), f.at(i,j+1), g.at(i,j-1), g.at(i,j),

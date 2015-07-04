@@ -2,7 +2,6 @@
 #define __CONFIG_H__
 
 #include <string>
-#include "mpi.h"
 
 #include "real.h"
 
@@ -52,7 +51,7 @@ struct Config
   constants _constants=constants();
   boundaryCondition _bc=boundaryCondition();
 
-  Config(const std::string& filename, MPI_Comm comm_grid);
+  Config(const std::string& filename);
 };
 
 #endif

@@ -3,15 +3,13 @@
 #include <string>
 #include <cmath>
 
-#include "mpi.h"
 #include "real.h"
-#include "matrix.h"
 #include "config.h"
 #include "differences.h"
 #include "solvers.h"
 #include "velocity.h"
 #include "specialBoundary.h"
-#include "parallel.h"
+#include "field.h"
 
 REAL compDelt(Config::geo geoConfig, Config::time timeConfig, Config::constants constantsConfig, 
 	      const Velocity& Velocity) 
@@ -33,119 +31,81 @@ REAL compDelt(Config::geo geoConfig, Config::time timeConfig, Config::constants 
 }
 
 int main(int argc, char* argv[])
-{  
-  MPI_Comm comm_grid;
-  MPI_Init(0, 0);
-  init_MPI_Grid(comm_grid);
+{    
+  std::string cfg_PROBLEM;
+  special_boundary_fct bc_sp_PROBLEM;
+  init_geometry_fct initGeometry_PROBLEM;
 
-  int rank = get_MPI_Comm_rank(comm_grid);
+  auto toUpper = [] (std::string& str) -> void { std::transform(str.begin(), str.end(),str.begin(), ::toupper); };
+  
+  if(argc<2){
+    cfg_PROBLEM = "config_DIRVEN_CAVATY";
+    bc_sp_PROBLEM = bc_DRIVEN_CAVITY;
+    initGeometry_PROBLEM = geometry_DRIVEN_CAVITY;
+  }
+  else{
+    std::string problem(argv[1]);
+    toUpper(problem);
+    
+    if(problem==std::string("DRIVEN_CAVITY")){
+      cfg_PROBLEM = "config_DIRVEN_CAVATY";
+      bc_sp_PROBLEM = bc_DRIVEN_CAVITY;
+      initGeometry_PROBLEM = geometry_DRIVEN_CAVITY;      
+    }else if(problem==std::string("STEP")){
+      cfg_PROBLEM = "config_STEP";
+      bc_sp_PROBLEM = bc_STEP;
+      initGeometry_PROBLEM = geometry_STEP; 	
+    }else if(problem==std::string("KARMAN")){
+      cfg_PROBLEM = "config_KARMAN";
+      bc_sp_PROBLEM = bc_KARMAN;
+      initGeometry_PROBLEM = geometry_KARMAN;   	  
+    }else{
+      std::cout << "Case >" << argv[1] << "< not implemented." << std::endl;
+      return 1;
+    }
+  }
+      
+  Config conf{cfg_PROBLEM};
+  
+  Geometry geometry(conf._geo, initGeometry_PROBLEM);
+  
+  Field2D Pressure{conf._geo.imax, conf._geo.jmax, conf._constants.PI};
+  Field2D Div_velocity{conf._geo.imax, conf._geo.jmax, 0};
+  Velocity Velocity{conf._geo, conf._constants, conf._bc, geometry, bc_sp_PROBLEM};
+  
+  REAL t=0;
+  REAL delt=0;
+  REAL next_output=conf._time.del_vec;
+  unsigned step=1;
 
-  Config conf{"config_DRIVEN_CAVITY", comm_grid};
-  Geometry geometry(comm_grid, conf._geo, geometry_DRIVEN_CAVITY);
+  system("rm *.vtk");
 
-  if(rank==0){
-    const auto coords = get_MPI_Cart_coords(comm_grid, 2);
-    std::cout << coords[0] << " " << coords[1] << std::endl;
-    geometry.print();
+  Velocity.writeVTK(0);
+  Pressure.writeVTK("Pressure0.vtk", "Pressure", conf._geo.delx, conf._geo.dely);
+    
+  while(t<conf._time.t_end ){
+    delt = compDelt(conf._geo, conf._time, conf._constants, Velocity);
+
+    Velocity.setDivergenceIntermidiate(delt, Div_velocity);
+
+    auto it_res = SOR_Poisson(conf._geo, conf._solver, geometry, Pressure, Div_velocity);
+
+    Velocity.update(delt, Pressure);
+
+    if(t>next_output){      
+      std::cout << "Ausgabe " << step  << ": delt = " << delt 
+  		<< ", Iterationen: " << it_res.first << ", Residuum: " << it_res.second << std::endl;
+
+      Velocity.writeVTK(step);
+      Pressure.writeVTK("Pressure"+std::to_string(step)+".vtk", "Pressure", conf._geo.delx, conf._geo.dely);
+      
+      next_output += conf._time.del_vec;   
+      ++step;
+    }
+
+    t += delt; 
   }
 
-  double F_0 = rank, G_0 = -rank;
-  Matrix F{conf._geo.imax + 2, conf._geo.jmax + 2, 1};
-  Matrix G{conf._geo.imax + 2, conf._geo.jmax + 2, G_0};
-  Matrix P{conf._geo.imax + 2, conf._geo.jmax + 2, 0.};
-
-  // MPI_Barrier(comm_grid);
-  // Matrix_exchange(comm_grid, Pressure);
-  // MPI_Barrier(comm_grid);
-  // if(rank==0){
-  //   system("rm *.vtk");
-  // }
-  
-  // MPI_Barrier(comm_grid);
-  // MPI_VectorFieldVTK(comm_grid, "test.vtk", "test", F, G, conf._geo.delx, conf._geo.dely);
-  // MPI_Barrier(comm_grid);
-
-  MPI_Barrier(comm_grid);
-  //MPI_Matrix_exchange(comm_grid, F);
-  SOR_Poisson(comm_grid, conf._geo, conf._solver, geometry, P, F);
-  MPI_Barrier(comm_grid);
-  
-
-  MPI_Finalize();
-  
-  // std::string cfg_PROBLEM;
-  // special_boundary_fct bc_sp_PROBLEM;
-  // init_geometry_fct initGeometry_PROBLEM;
-
-  // auto toUpper = [] (std::string& str) -> void { std::transform(str.begin(), str.end(),str.begin(), ::toupper); };
-  
-  // if(argc<2){
-  //   cfg_PROBLEM = "config_DIRVEN_CAVATY";
-  //   bc_sp_PROBLEM = bc_DRIVEN_CAVITY;
-  //   initGeometry_PROBLEM = geometry_DRIVEN_CAVITY;
-  // }
-  // else{
-  //   std::string problem(argv[1]);
-  //   toUpper(problem);
-    
-  //   if(problem==std::string("DRIVEN_CAVITY")){
-  //     cfg_PROBLEM = "config_DIRVEN_CAVATY";
-  //     bc_sp_PROBLEM = bc_DRIVEN_CAVITY;
-  //     initGeometry_PROBLEM = geometry_DRIVEN_CAVITY;      
-  //   }else if(problem==std::string("STEP")){
-  //     cfg_PROBLEM = "config_STEP";
-  //     bc_sp_PROBLEM = bc_STEP;
-  //     initGeometry_PROBLEM = geometry_STEP; 	
-  //   }else if(problem==std::string("KARMAN")){
-  //     cfg_PROBLEM = "config_KARMAN";
-  //     bc_sp_PROBLEM = bc_KARMAN;
-  //     initGeometry_PROBLEM = geometry_KARMAN;   	  
-  //   }else{
-  //     std::cout << "Case >" << argv[1] << "< not implemented." << std::endl;
-  //     return 1;
-  //   }
-  // }
-      
-  // Config conf{cfg_PROBLEM};
-  
-  // Geometry geometry(conf._geo, initGeometry_PROBLEM);
-  
-  // Matrix Div_velocity{conf._geo.imax + 1, conf._geo.jmax + 1, 0};
-  // Velocity Velocity{conf._geo, conf._constants, conf._bc, geometry, bc_sp_PROBLEM};
-  
-  // REAL t=0;
-  // REAL delt=0;
-  // REAL next_output=conf._time.del_vec;
-  // unsigned step=1;
-
-  // system("rm *.vtk");
-
-  // Velocity.writeVTK(0);
-  // Pressure.writeVTK("Pressure0.vtk", "Pressure", conf._geo.delx, conf._geo.dely);
-    
-  // while(t<conf._time.t_end ){
-  //   delt = compDelt(conf._geo, conf._time, conf._constants, Velocity);
-
-  //   Velocity.setDivergenceIntermidiate(delt, Div_velocity);
-
-  //   auto it_res = SOR_Poisson(conf._geo, conf._solver, geometry, Pressure, Div_velocity);
-
-  //   Velocity.update(delt, Pressure);
-
-  //   if(t>next_output){      
-  //     std::cout << "Ausgabe " << step  << ": delt = " << delt 
-  // 		<< ", Iterationen: " << it_res.first << ", Residuum: " << it_res.second << std::endl;
-
-  //     Velocity.writeVTK(step);
-  //     Pressure.writeVTK("Pressure"+std::to_string(step)+".vtk", "Pressure", conf._geo.delx, conf._geo.dely);
-      
-  //     next_output += conf._time.del_vec;   
-  //     ++step;
-  //   }
-
-  //   t += delt; 
-  // }
-
-  // Velocity.writeVTK(step);
-  // Pressure.writeVTK("Pressure"+std::to_string(step)+".vtk", "Pressure", conf._geo.delx, conf._geo.dely);
+  Velocity.writeVTK(step);
+  Pressure.writeVTK("Pressure"+std::to_string(step)+".vtk", "Pressure", conf._geo.delx, conf._geo.dely);
 }

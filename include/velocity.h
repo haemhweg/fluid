@@ -7,7 +7,7 @@
 
 #include "real.h"
 #include "config.h"
-#include "matrix.h"
+#include "field.h"
 #include "specialBoundary.h"
 #include "geometry.h"
 
@@ -15,8 +15,8 @@
 class Velocity
 {
 
-  Matrix F, G;
-  Matrix U, V;
+  Field2D F, G;
+  Field2D U, V;
 
   const Config::geo geoConfig;
   const Config::constants constantsConfig;
@@ -25,8 +25,6 @@ class Velocity
   const special_boundary_fct& updateSPBoundary;
 
   const Geometry& geometry;
-  const MPI_Comm& comm_grid;
-
   /**
    *
    */
@@ -39,7 +37,7 @@ class Velocity
 
  public:
 
-   Velocity(const MPI_Comm& comm_grid, const Config::geo geo_, const Config::constants constants_, 
+   Velocity(const Config::geo geo_, const Config::constants constants_, 
 	    const Config::boundaryCondition bc_, const Geometry& geometry_, const special_boundary_fct& bc_sp_);
 
 
@@ -50,7 +48,7 @@ class Velocity
    *  @param F, G Intermediate velocity computed by @compIntermediateVelocity()
    *  @return The iteration number and achieved accuracy of the solution
    */
-  void setDivergenceIntermidiate(const REAL delt, Matrix& div);    
+  void setDivergenceIntermidiate(const REAL delt, Field2D& div);    
   
   /**
    *  @brief Computes the velocity for the next time step using the given intermediate values F,G and the new pressure P
@@ -59,7 +57,7 @@ class Velocity
    *  @param F,G Intermediate values for the velocity, see @compIntermediateVelocity()
    *  @param P New pressure from @SOR_Poisson()
    */
-  void update(const REAL delt, const Matrix& P);
+  void update(const REAL delt, const Field2D& P);
 
   REAL getMaxU() const { return U.getMax(); }
   REAL getMaxV() const { return V.getMax(); }

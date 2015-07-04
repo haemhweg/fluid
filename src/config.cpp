@@ -6,12 +6,10 @@
 #include <vector>
 #include <array>
 #include <cstdlib>
-#include "mpi.h"
 
 #include "config.h"
-#include "parallel.h"
 
-Config::Config(const std::string& filename, MPI_Comm comm_grid)
+Config::Config(const std::string& filename)
 {
   std::ifstream file(filename);
 
@@ -170,25 +168,7 @@ Config::Config(const std::string& filename, MPI_Comm comm_grid)
     }
   }
 
-  if(std::equal(std::begin(is_set), std::end(is_set), std::begin(std::vector<bool>(21,true)))) {
-    std::array<int,2> coords = get_MPI_Cart_coords(comm_grid, 2);      
-    std::array<int,2> dims = get_MPI_Dims_create(MPI_COMM_WORLD, 2);   
-
-    if(coords[0]==dims[0]-1 && dims[0]>1){
-      _geo.imax -= (dims[0]-1)*(_geo.imax/dims[0]);
-      _geo.xlength -= (dims[0]-1)*(_geo.xlength/dims[0]);
-    }else{
-      _geo.imax /= dims[0];
-      _geo.xlength /= dims[0];
-    }
-    if(coords[1]==dims[1]-1 && dims[1]>1){
-      _geo.jmax -= (dims[1]-1)*(_geo.jmax/dims[1]);
-      _geo.ylength -= (dims[1]-1)*(_geo.ylength/dims[1]);
-    }else{
-      _geo.jmax /= dims[1];
-      _geo.ylength /= dims[1];
-    }
-      
+  if(std::equal(std::begin(is_set), std::end(is_set), std::begin(std::vector<bool>(21,true)))) {      
     _geo.delx = REAL(_geo.xlength)/_geo.imax;
     _geo.dely = REAL(_geo.ylength)/_geo.jmax;
   }
