@@ -102,21 +102,6 @@ void Field2D::print(const std::string& descr) const
   std::cout << std::setprecision(6);
 }
 
-void Field2D::writeBinary(const std::string & filename) const
-{
-  std::ofstream fs(filename, std::ios::binary);
-  
-  const unsigned real_size = sizeof(REAL);
-
-  const unsigned M = imax_+2;
-  const unsigned N = jmax_+2;
-
-  fs.write((char *)&M, sizeof(unsigned));
-  fs.write((char *)&N, sizeof(unsigned));
-
-  fs.write((char *)_data, M*N*real_size);
-}
-
 void Field2D::writeVTK(const std::string & filename, const std::string& descr, const double dx, const double dy) const
 {
   std::ofstream fs(filename);

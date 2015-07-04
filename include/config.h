@@ -52,6 +52,8 @@ struct Config
   boundaryCondition _bc=boundaryCondition();
 
   Config(const std::string& filename);
+
+  void print(const std::string& problem);
 };
 
 #endif

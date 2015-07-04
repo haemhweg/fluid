@@ -1,5 +1,4 @@
 #include <vector>
-#include <iostream>
 #include <cassert>
 
 #include "specialBoundary.h"
@@ -51,15 +50,6 @@ std::vector<CELL> geometry_STEP(const Config::geo& geoConfig)
   assert(imax>jmax/2);
 
   std::vector<CELL> cells(geometry_DRIVEN_CAVITY(geoConfig));
-
-  for (int j = jmax+1; j >=0 ; --j){
-    for (unsigned i = 0; i < imax+2; ++i){
-      std::cout << int(cells[j*(imax+2)+i]) << "  ";
-    }
-    std::cout << std::endl;
-  }
-
-  std::cout << std::endl;
 
   for(unsigned i=1; i<jmax/2; ++i){
     cells[(jmax/2)*(imax+2)+i] = B_N;
