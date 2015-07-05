@@ -167,12 +167,93 @@ Config::Config(const std::string& filename)
     }
   }
 
-  if(std::equal(std::begin(is_set), std::end(is_set), std::begin(std::vector<bool>(21,true)))) {
+  if(std::equal(std::begin(is_set), std::end(is_set), std::begin(std::vector<bool>(21,true)))) {      
     _geo.delx = REAL(_geo.xlength)/_geo.imax;
     _geo.dely = REAL(_geo.ylength)/_geo.jmax;
   }
   else{
     std::cout << "Wrong input!" << std::endl;
     std::exit(EXIT_FAILURE);
+
   }  
+}
+
+
+void Config::print(const std::string& example)
+{
+  std::cout << "Solving the Navier-Stokes equation for the " << example << " example.\n";
+
+  std::cout << "\nGeometry parameters:"<< "\n"
+	    << "\txlength = " << _geo.xlength << "\n"
+	    << "\tylength = " << _geo.ylength << "\n"
+	    << "\timax = " << _geo.imax << "\n"
+	    << "\tjmax = " << _geo.jmax << "\n";
+
+  std::cout << "\nTimestep parameters:"<< "\n"
+	    << "\tt_end = " << _time.t_end << "\n"
+	    << "\ttau = " << _time.tau  << "\n"
+	    << "\tdel_vec = " << _time.del_vec << "\n";
+
+  std::cout << "\nSOR parameters:" << "\n"
+	    << "\teps = " << _solver.eps << "\n"
+	    << "\titmax = " << _solver.itmax << "\n"
+	    << "\tomega = " << _solver.omega << "\n";
+
+  std::cout << "\nConstants:" << "\n"
+	    << "\talpha = " << _constants.alpha << "\n"
+	    << "\tG = (" << _constants.GX << ", " << _constants.GY << ")" << "\n"
+	    << "\tRe = " << _constants.Re << "\n"
+	    << "\tInit velocity = (" << _constants.UI << ", " << _constants.VI << ")" << "\n"
+	    << "\tInit pressure = " << _constants.PI << "\n";
+
+  std::cout << "\nBoundary Conditions (without special boundary):" << "\n";
+  std::cout << "\tTop = ";
+  switch(_bc.wt){
+  case NO_SLIP:
+    std::cout << "NO_SLIP" << "\n";
+    break;
+  case FREE_SLIP:
+    std::cout << "FREE_SLIP" << "\n";
+    break;
+  case OUTFLOW:
+    std::cout << "OUTFLOW" << "\n";
+    break;
+  }
+  std::cout << "\tRight = ";
+  switch(_bc.wr){
+  case NO_SLIP:
+    std::cout << "NO_SLIP" << "\n";
+    break;
+  case FREE_SLIP:
+    std::cout << "FREE_SLIP" << "\n";
+    break;
+  case OUTFLOW:
+    std::cout << "OUTFLOW" << "\n";
+    break;
+  }
+  std::cout << "\tBottom = ";
+  switch(_bc.wb){
+  case NO_SLIP:
+    std::cout << "NO_SLIP" << "\n";
+    break;
+  case FREE_SLIP:
+    std::cout << "FREE_SLIP" << "\n";
+    break;
+  case OUTFLOW:
+    std::cout << "OUTFLOW" << "\n";
+    break;
+  }
+  std::cout << "\tLeft = ";
+  switch(_bc.wl){
+  case NO_SLIP:
+    std::cout << "NO_SLIP" << "\n";
+    break;
+  case FREE_SLIP:
+    std::cout << "FREE_SLIP" << "\n";
+    break;
+  case OUTFLOW:
+    std::cout << "OUTFLOW" << "\n";
+    break;
+  }
+  std::cout << std::endl;    
 }

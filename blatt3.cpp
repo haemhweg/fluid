@@ -36,14 +36,16 @@ REAL compDelt(Config::geo geoConfig, Config::time timeConfig, Config::constants 
 
 int main(int argc, char* argv[])
 {  
-  std::string cfg_PROBLEM;
+  system("rm *.vtk");
+
+  std::string PROBLEM;
   special_boundary_fct bc_sp_PROBLEM;
   init_geometry_fct initGeometry_PROBLEM;
 
   auto toUpper = [] (std::string& str) -> void { std::transform(str.begin(), str.end(),str.begin(), ::toupper); };
   
   if(argc<2){
-    cfg_PROBLEM = "config_DRIVEN_CAVITY";
+    PROBLEM = "DRIVEN_CAVITY";
     bc_sp_PROBLEM = bc_DRIVEN_CAVITY;
     initGeometry_PROBLEM = geometry_DRIVEN_CAVITY;
   }
@@ -52,15 +54,15 @@ int main(int argc, char* argv[])
     toUpper(problem);
     
     if(problem==std::string("DRIVEN_CAVITY")){
-      cfg_PROBLEM = "config_DRIVEN_CAVITY";
+      PROBLEM = "DRIVEN_CAVITY";
       bc_sp_PROBLEM = bc_DRIVEN_CAVITY;
       initGeometry_PROBLEM = geometry_DRIVEN_CAVITY;      
     }else if(problem==std::string("STEP")){
-      cfg_PROBLEM = "config_STEP";
+      PROBLEM = "STEP";
       bc_sp_PROBLEM = bc_STEP;
       initGeometry_PROBLEM = geometry_STEP; 	
     }else if(problem==std::string("KARMAN")){
-      cfg_PROBLEM = "config_KARMAN";
+      PROBLEM = "KARMAN";
       bc_sp_PROBLEM = bc_KARMAN;
       initGeometry_PROBLEM = geometry_KARMAN;   	  
     }else{
@@ -69,9 +71,11 @@ int main(int argc, char* argv[])
     }
   }
       
-  Config conf{cfg_PROBLEM};
+  Config conf{"config_"+PROBLEM};
+  conf.print(PROBLEM);
   
   Geometry geometry(conf._geo, initGeometry_PROBLEM);
+  geometry.writeVTK("geometry.vtk", "Geometry", conf._geo.delx, conf._geo.dely);
   
   Matrix Pressure{conf._geo.imax + 2, conf._geo.jmax + 2, conf._constants.PI};
   Matrix Div_velocity{conf._geo.imax + 1, conf._geo.jmax + 1, 0};
@@ -81,8 +85,6 @@ int main(int argc, char* argv[])
   REAL delt=0;
   REAL next_output=conf._time.del_vec;
   unsigned step=1;
-
-  system("rm *.vtk");
 
   Velocity.writeVTK(0);
   Pressure.writeVTK("Pressure0.vtk", "Pressure", conf._geo.delx, conf._geo.dely);
