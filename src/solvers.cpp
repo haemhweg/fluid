@@ -33,17 +33,18 @@ void updatePressureBoundary(const Config::geo& geoConfig, const Geometry& geomet
 {  
   REAL delx2 = geoConfig.delx*geoConfig.delx;
   REAL dely2 = geoConfig.dely*geoConfig.dely;
+  const unsigned imax = geoConfig.imax, jmax = geoConfig.jmax;
 
   const auto& boundary = geometry.get_boundary();
 
   // set zero dirichlet bc on the square for P
-  for(unsigned j=1; j<geoConfig.jmax+1; ++j){
+  for(unsigned j=1; j<jmax+1; ++j){
     P.at(0,j) = P.at(1,j);
-    P.at(geoConfig.imax+1,j) = P.at(geoConfig.imax,j); 
+    P.at(imax+1,j) = P.at(imax,j); 
   }
-  for(unsigned i=1; i<geoConfig.imax+1; ++i){
+  for(unsigned i=1; i<imax+1; ++i){
     P.at(i,0) = P.at(i,1);
-    P.at(i,geoConfig.jmax+1) = P.at(i,geoConfig.jmax); 
+    P.at(i,jmax+1) = P.at(i,jmax); 
   }
 
   // Hindernis

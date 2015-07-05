@@ -3,9 +3,9 @@ jmax 20
 xlength 10
 ylength 2
 
-t_end 100
+t_end 20
 tau 0.5
-del_vec 10
+del_vec 2
 
 eps 1e-3
 omega 1.7
@@ -14,7 +14,7 @@ itmax 500
 
 GX 0.0
 GY 0.0
-RE 100
+RE 10000
 UI 1.0
 VI 0.0
 PI 0.0

@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
   auto toUpper = [] (std::string& str) -> void { std::transform(str.begin(), str.end(),str.begin(), ::toupper); };
   
   if(argc<2){
-    cfg_PROBLEM = "config_DIRVEN_CAVATY";
+    cfg_PROBLEM = "config_DRIVEN_CAVITY";
     bc_sp_PROBLEM = bc_DRIVEN_CAVITY;
     initGeometry_PROBLEM = geometry_DRIVEN_CAVITY;
   }
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
     toUpper(problem);
     
     if(problem==std::string("DRIVEN_CAVITY")){
-      cfg_PROBLEM = "config_DIRVEN_CAVATY";
+      cfg_PROBLEM = "config_DRIVEN_CAVITY";
       bc_sp_PROBLEM = bc_DRIVEN_CAVITY;
       initGeometry_PROBLEM = geometry_DRIVEN_CAVITY;      
     }else if(problem==std::string("STEP")){

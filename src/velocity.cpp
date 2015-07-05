@@ -75,7 +75,7 @@ void Velocity::updateBoundary()
   	V.at(i,j) = 0;
   	break;
       case B_W:
-  	U.at(i,j) = 0;
+  	U.at(i-1,j) = 0;
   	V.at(i,j) = -V.at(i-1,j);
   	V.at(i,j-1) = -V.at(i-1,j-1);
   	break;
@@ -85,7 +85,7 @@ void Velocity::updateBoundary()
   	V.at(i,j-1) = 0;
   	break;
       case B_O:
-  	U.at(i-1,j) = 0;
+  	U.at(i,j) = 0;
   	V.at(i,j) = -V.at(i+1,j);
   	V.at(i,j-1) = -V.at(i+1,j-1);
   	break;
@@ -223,23 +223,33 @@ void Velocity::updateIntermidiate(const REAL delt)
   const REAL Re = constantsConfig.Re;
   const REAL gx = constantsConfig.GX;
   const REAL gy = constantsConfig.GY;
+  const unsigned imax = geoConfig.imax, jmax = geoConfig.jmax;
 
   auto fluid = geometry.get_fluid();
 
   for(const auto& cell : fluid){
     unsigned i = cell.first, j = cell.second;
 
-    if(i<geoConfig.imax){
+    if(i<imax){
       F.at(i,j) = U.at(i,j) + delt*((d2fdx(delx, U, i, j) + d2fdy(dely, U, i, j))/Re - df2dx(delx, alpha, U, i, j)
 				    - dfgdy(dely, alpha, U, V, i, j) + gx);
     }
-    if(j<geoConfig.jmax){
+    if(j<jmax){
       G.at(i,j) = V.at(i,j) + delt*((d2fdx(delx, V, i, j) + d2fdy(dely, V, i, j))/Re - df2dy(dely, alpha, V, i, j)
 				    - dfgdx(delx, alpha, U, V, i, j) + gy);
     }
   }
 
   // Set boundary values of F and G
+  for(unsigned j=1; j<jmax+1; ++j){
+    F.at(0,j) = U.at(0,j);
+    F.at(imax,j) = U.at(imax,j);
+  }
+  for(unsigned i=1; i<imax+1; ++i){
+    G.at(i,0) = G.at(i,0);
+    G.at(i,jmax) = G.at(i,jmax);
+  }
+
   auto boundary = geometry.get_boundary();
   for(const auto& cell : boundary){
     unsigned i = cell.first, j = cell.second;
