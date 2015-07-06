@@ -45,8 +45,9 @@ Velocity::Velocity(const Config::geo geo_, const Config::constants constants_, c
   const REAL VI = constants_.VI;
   const auto& fluid = geometry.get_fluid();
   
+  unsigned i=0, j=0;
   for(const auto& cell : fluid){
-    const unsigned i = cell.first, j = cell.second;
+    i = cell.first; j = cell.second;
 
     U.at(i,j) = UI;
     V.at(i,j) = VI;
@@ -58,14 +59,15 @@ Velocity::Velocity(const Config::geo geo_, const Config::constants constants_, c
 
 void Velocity::updateBoundary()
 {
-  unsigned jmax = geoConfig.jmax;
-  unsigned imax = geoConfig.imax;
+  const unsigned jmax = geoConfig.jmax;
+  const unsigned imax = geoConfig.imax;
 
   // Setze Randwerte bzgl. der inneren Hindernisse
-  auto& boundary = geometry.get_boundary();
+  const auto& boundary = geometry.get_boundary();
 
+  unsigned i=0, j=0;
   for(const auto& cell : boundary){
-    unsigned i = cell.first, j = cell.second;
+    i = cell.first; j = cell.second;
     switch (geometry.at(i, j))
       {
   	// Randkanten
@@ -123,19 +125,19 @@ void Velocity::updateBoundary()
   switch (bc.wt)
     {
     case NO_SLIP:
-      for(unsigned i=1; i<imax+1; ++i){
+      for(i=1; i<imax+1; ++i){
 	U.at(i,jmax+1) = -U.at(i,jmax);
 	V.at(i,jmax) = 0;
       }
       break;
     case FREE_SLIP:
-      for(unsigned i=1; i<imax+1; ++i){
+      for(i=1; i<imax+1; ++i){
 	U.at(i,jmax+1) = U.at(i,jmax);
 	V.at(i,jmax) = 0;
       }
       break;
     case OUTFLOW:
-      for(unsigned i=1; i<imax+1; ++i){
+      for(i=1; i<imax+1; ++i){
 	U.at(i,jmax+1) = U.at(i,jmax);
 	V.at(i,jmax) = V.at(i,jmax-1);
       }
@@ -146,19 +148,19 @@ void Velocity::updateBoundary()
   switch (bc.wr)
     {
     case NO_SLIP:
-      for(unsigned j=1; j<jmax+1; ++j){
+      for(j=1; j<jmax+1; ++j){
 	U.at(imax,j) = 0;
 	V.at(imax+1,j) = -V.at(imax,j);
       }
       break;
     case FREE_SLIP:
-      for(unsigned j=1; j<jmax+1; ++j){
+      for(j=1; j<jmax+1; ++j){
 	U.at(imax,j) = 0;
 	V.at(imax+1,j) = V.at(imax,j);	
       }
       break;
     case OUTFLOW:
-      for(unsigned j=1; j<jmax+1; ++j){
+      for(j=1; j<jmax+1; ++j){
 	U.at(imax,j) = U.at(imax-1,j);
 	V.at(imax+1,j) = V.at(imax,j);
       }
@@ -169,19 +171,19 @@ void Velocity::updateBoundary()
   switch (bc.wb)
     {
     case NO_SLIP:
-      for(unsigned i=1; i<imax+1; ++i){
+      for(i=1; i<imax+1; ++i){
 	U.at(i,0) = -U.at(i,1);
 	V.at(i,0) = 0;
       }
       break;
     case FREE_SLIP:
-      for(unsigned i=1; i<imax+1; ++i){
+      for(i=1; i<imax+1; ++i){
 	U.at(i,0) = U.at(i,1);
 	V.at(i,0) = 0;
       }
       break;
     case OUTFLOW:
-      for(unsigned i=1; i<imax+1; ++i){
+      for(i=1; i<imax+1; ++i){
 	U.at(i,0) = U.at(i,1);
 	V.at(i,0) = V.at(i,1);
       }
@@ -192,19 +194,19 @@ void Velocity::updateBoundary()
   switch (bc.wl)
     {
     case NO_SLIP:
-      for(unsigned j=1; j<jmax+1; ++j){
+      for(j=1; j<jmax+1; ++j){
 	U.at(0,j) = 0;
 	V.at(0,j) = -V.at(1,j);
       }
       break;
     case FREE_SLIP:
-      for(unsigned j=1; j<jmax+1; ++j){
+      for(j=1; j<jmax+1; ++j){
 	U.at(0,j) = U.at(1,j);
 	V.at(0,j) = 0;
       }
       break;
     case OUTFLOW:
-      for(unsigned j=1; j<jmax+1; ++j){
+      for(j=1; j<jmax+1; ++j){
 	U.at(0,j) = U.at(1,j);
 	V.at(0,j) = V.at(1,j);
       }
@@ -225,10 +227,11 @@ void Velocity::updateIntermidiate(const REAL delt)
   const REAL gy = constantsConfig.GY;
   const unsigned imax = geoConfig.imax, jmax = geoConfig.jmax;
 
-  auto fluid = geometry.get_fluid();
+  const auto& fluid = geometry.get_fluid();
 
+  unsigned i=0, j=0;
   for(const auto& cell : fluid){
-    unsigned i = cell.first, j = cell.second;
+    i = cell.first; j = cell.second;
 
     if(i<imax){
       F.at(i,j) = U.at(i,j) + delt*((d2fdx(delx, U, i, j) + d2fdy(dely, U, i, j))/Re - df2dx(delx, alpha, U, i, j)
@@ -241,18 +244,18 @@ void Velocity::updateIntermidiate(const REAL delt)
   }
 
   // Set boundary values of F and G
-  for(unsigned j=1; j<jmax+1; ++j){
+  for(j=1; j<jmax+1; ++j){
     F.at(0,j) = U.at(0,j);
     F.at(imax,j) = U.at(imax,j);
   }
-  for(unsigned i=1; i<imax+1; ++i){
+  for(i=1; i<imax+1; ++i){
     G.at(i,0) = V.at(i,0);
     G.at(i,jmax) = V.at(i,jmax);
   }
 
   auto boundary = geometry.get_boundary();
   for(const auto& cell : boundary){
-    unsigned i = cell.first, j = cell.second;
+    i = cell.first; j = cell.second;
     switch (geometry.at(i,j))
       {
 	// Randkanten
@@ -293,15 +296,20 @@ void Velocity::updateIntermidiate(const REAL delt)
 
 void Velocity::setDivergenceIntermidiate(const REAL delt, Matrix& div)
 {  
+  const REAL delx = geoConfig.delx;
+  const REAL dely = geoConfig.dely;
+  
+  const auto& fluid = geometry.get_fluid();
+
   updateBoundary();
 
   updateIntermidiate(delt);
-  
-  for(unsigned i=1; i<geoConfig.imax+1; ++i){
-    for(unsigned j=1; j<geoConfig.jmax+1; ++j){
-      div.at(i,j) = (  (F.at(i,j) - F.at(i-1,j))/geoConfig.delx 
-		     + (G.at(i,j) - G.at(i,j-1))/geoConfig.dely) / delt;
-    }
+
+  unsigned i=0, j=0;
+  for(const auto& cell : fluid){
+    i = cell.first; j = cell.second;
+    
+    div.at(i,j) = ((F.at(i,j)-F.at(i-1,j))/delx + (G.at(i,j)-G.at(i,j-1))/dely) / delt;
   }
 }
 
@@ -310,10 +318,11 @@ void Velocity::update(const REAL delt, const Matrix& P)
   const REAL delx = geoConfig.delx;
   const REAL dely = geoConfig.dely;
   
-  auto fluid = geometry.get_fluid();
+  const auto& fluid = geometry.get_fluid();
 
-  for(const auto cells : fluid){
-    unsigned i = cells.first, j = cells.second;
+  unsigned i=0, j=0;
+  for(const auto& cell : fluid){
+    i = cell.first; j = cell.second;
 
     if(i<geoConfig.imax){
       U.at(i,j) = F.at(i,j) - delt/delx * (P.at(i+1,j) - P.at(i,j));

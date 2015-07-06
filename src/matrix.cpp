@@ -101,7 +101,9 @@ unsigned Matrix::getCols() const
 
 REAL Matrix::getMax() const
 {
-	return *std::max_element(_data, _data + M*N);
+  const auto absLess = [] (const REAL a, const REAL b) -> bool 
+    { return std::fabs(a)<std::fabs(b); };
+  return std::fabs(*std::max_element(_data, _data + M*N, absLess));
 }
 
 

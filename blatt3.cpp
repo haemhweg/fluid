@@ -83,11 +83,8 @@ int main(int argc, char* argv[])
   
   REAL t=0;
   REAL delt=0;
-  REAL next_output=conf._time.del_vec;
+  REAL next_output=0;
   unsigned step=1;
-
-  Velocity.writeVTK(0);
-  Pressure.writeVTK("Pressure0.vtk", "Pressure", conf._geo.delx, conf._geo.dely);
     
   while(t<conf._time.t_end ){
     delt = compDelt(conf._geo, conf._time, conf._constants, Velocity);
@@ -101,6 +98,7 @@ int main(int argc, char* argv[])
     if(t>next_output){      
       std::cout << "Ausgabe " << step  << ": delt = " << delt 
   		<< ", Iterationen: " << it_res.first << ", Residuum: " << it_res.second << std::endl;
+      std::cout << "Umax = " << Velocity.getMaxU() << ", Vmax = " << Velocity.getMaxV() << std::endl;
 
       Velocity.writeVTK(step);
       Pressure.writeVTK("Pressure"+std::to_string(step)+".vtk", "Pressure", conf._geo.delx, conf._geo.dely);
