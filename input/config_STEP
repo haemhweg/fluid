@@ -1,5 +1,5 @@
-imax 100
-jmax 20
+imax 200
+jmax 40
 xlength 10
 ylength 2
 
@@ -10,7 +10,7 @@ del_vec 10
 eps 1e-3
 omega 1.7
 alpha 0.9
-itmax 500
+itmax 5000
 
 GX 0.0
 GY 0.0
