@@ -64,8 +64,9 @@ class Velocity
 
   void print();
 
-  void writeVTK(const unsigned step) 
-  { writeVectorFieldVTK("Velocity"+std::to_string(step)+".vtk", "Velocity", U, V, geoConfig.delx, geoConfig.dely); }
+  void writeVTK(const unsigned step, const double Re) 
+  { writeVectorFieldVTK("Velocity-Re"+std::to_string(Re)+"_"+std::to_string(step)+".vtk", "Velocity", 
+			U, V, geoConfig.delx, geoConfig.dely); }
 };
 
 #endif

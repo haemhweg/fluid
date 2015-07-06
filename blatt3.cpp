@@ -98,10 +98,12 @@ int main(int argc, char* argv[])
     if(t>next_output){      
       std::cout << "Ausgabe " << step  << ": delt = " << delt 
   		<< ", Iterationen: " << it_res.first << ", Residuum: " << it_res.second << std::endl;
-      std::cout << "Umax = " << Velocity.getMaxU() << ", Vmax = " << Velocity.getMaxV() << std::endl;
+      std::cout << "Umax = " << Velocity.getMaxU() << ", Vmax = " << Velocity.getMaxV() 
+		<< ", Pmax = " << Pressure.getMax() << std::endl;
 
-      Velocity.writeVTK(step);
-      Pressure.writeVTK("Pressure"+std::to_string(step)+".vtk", "Pressure", conf._geo.delx, conf._geo.dely);
+      Velocity.writeVTK(step, conf._constants.Re);
+      Pressure.writeVTK("Pressure-Re"+std::to_string(conf._constants.Re)+"_"+std::to_string(step)+".vtk", 
+			"Pressure", conf._geo.delx, conf._geo.dely);
       
       next_output += conf._time.del_vec;   
       ++step;
@@ -110,6 +112,7 @@ int main(int argc, char* argv[])
     t += delt; 
   }
 
-  Velocity.writeVTK(step);
-  Pressure.writeVTK("Pressure"+std::to_string(step)+".vtk", "Pressure", conf._geo.delx, conf._geo.dely);
+  Velocity.writeVTK(step, conf._constants.Re);
+  Pressure.writeVTK("Pressure-Re"+std::to_string(conf._constants.Re)+"_"+std::to_string(step)+".vtk", 
+		    "Pressure", conf._geo.delx, conf._geo.dely);
 }
