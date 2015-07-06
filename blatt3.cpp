@@ -23,15 +23,12 @@ REAL compDelt(Config::geo geoConfig, Config::time timeConfig, Config::constants 
   REAL maxU = Velocity.getMaxU();
   REAL maxV = Velocity.getMaxV();
 
-  if(maxU!=0 && maxV!=0) {
-    vals[0] = constantsConfig.Re / 2 / (1 / geoConfig.delx / geoConfig.delx + 1 / geoConfig.dely / geoConfig.dely);
-    vals[1] = geoConfig.delx / maxU;
-    vals[2] = geoConfig.dely / maxV;  
+  vals[0] = vals[1] = vals[2] = constantsConfig.Re / 2 / (1 / geoConfig.delx / geoConfig.delx 
+							  + 1 / geoConfig.dely / geoConfig.dely);
+  if(maxU!=0) vals[1] = geoConfig.delx / maxU;
+  if(maxV!=0) vals[2] = geoConfig.dely / maxV;  
 
-    return timeConfig.tau * *std::min_element(vals, vals + 3);
-  }
-  else return timeConfig.tau * constantsConfig.Re / 2 / (  1 / geoConfig.delx / geoConfig.delx 
-							 + 1 / geoConfig.dely / geoConfig.dely);
+  return timeConfig.tau * *std::min_element(vals, vals + 3);
 }
 
 int main(int argc, char* argv[])
@@ -93,17 +90,17 @@ int main(int argc, char* argv[])
 
     auto it_res = SOR_Poisson(conf._geo, conf._solver, geometry, Pressure, Div_velocity);
 
-    Velocity.update(delt, Pressure);
+    Velocity.update(delt, Pressure); 
 
-    if(t>next_output){      
+    if(t>next_output){     
       std::cout << "Ausgabe " << step  << ": delt = " << delt 
-  		<< ", Iterationen: " << it_res.first << ", Residuum: " << it_res.second << std::endl;
+		<< ", Iterationen: " << it_res.first << ", Residuum: " << it_res.second << std::endl;
       std::cout << "Umax = " << Velocity.getMaxU() << ", Vmax = " << Velocity.getMaxV() 
-		<< ", Pmax = " << Pressure.getMax() << std::endl;
+    		<< ", Pmax = " << Pressure.getMax() << std::endl;
 
       Velocity.writeVTK(step, conf._constants.Re);
       Pressure.writeVTK("Pressure-Re"+std::to_string(conf._constants.Re)+"_"+std::to_string(step)+".vtk", 
-			"Pressure", conf._geo.delx, conf._geo.dely);
+    			"Pressure", conf._geo.delx, conf._geo.dely);
       
       next_output += conf._time.del_vec;   
       ++step;

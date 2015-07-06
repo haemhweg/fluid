@@ -60,7 +60,7 @@ void Geometry::writeVTK(const std::string & filename, const std::string& descr, 
 
   
   for(const auto& cell : cells) {
-    if(cell == BLOCK){
+    if(cell != FLUID){
       fs << 0. << "\n";
     }else{
       fs << 1. << "\n";
