@@ -10,6 +10,7 @@ class Velocity;
 
 class Particle {
 public:
+	Particle() {};
 	Particle(REAL x_, REAL y_) : x(x_), y(y_) {};
 	REAL x, y;
 };

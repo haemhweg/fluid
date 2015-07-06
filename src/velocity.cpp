@@ -319,7 +319,9 @@ std::pair<REAL, REAL> Velocity::advanceParticle(REAL x, REAL y, REAL delt) {
   const REAL delx = geoConfig.delx;
   const REAL dely = geoConfig.dely;
 
-  REAL x1, x2, y1, y2, u1, u2, u3, u4, v1, v2, v3, v4, u, v;
+  REAL x1, x2, y1, y2, u1, u2, u3, u4, v1, v2, v3, v4, u, v, oldx, oldy;
+
+  oldx = x; oldy = y;
 
   unsigned int i, j;
 
@@ -360,6 +362,13 @@ std::pair<REAL, REAL> Velocity::advanceParticle(REAL x, REAL y, REAL delt) {
   // update values
   x = x + delt * u;
   y = y + delt * v;
+
+  i = int(x / delx) + 1;
+  j = int((y + dely / 2) / dely) + 1;
+
+  if(i < 0 || j < 0 || i > geoConfig.imax || j > geoConfig.jmax || geometry.at(i, j) != FLUID) {
+    throw 1;
+  }
 
   return std::make_pair(x, y);
 

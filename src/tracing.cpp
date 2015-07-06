@@ -65,21 +65,27 @@ void Tracer::output(size_t writeStep) {
      << "ASCII\n"
      << "DATASET POLYDATA\n";
 
-    size_t numPoints = particleLines.size() * particleLines[0].getSize();
+    size_t nodesSize = 0;
 
-    fs << "POINTS " << numPoints << " double\n";
+    for(size_t i = 0; i < particleLines.size(); i++) {
+    	nodesSize += particleLines[i].getSize();
+    }
+
+    fs << "POINTS " << nodesSize << " double\n";
 
     for(size_t i = 0; i < particleLines.size(); i++) {
     	particleLines[i].output(fs);
     }
 
-    fs << "LINES " << particleLines.size() << " " << (numPoints + particleLines.size()) << std::endl;
+    fs << "LINES " << particleLines.size() << " " << (nodesSize + particleLines.size()) << std::endl;
 
+    size_t k = 0;
     for(size_t i = 0; i < particleLines.size(); i++) {
     	fs << particleLines[i].getSize() << " ";
-    	for(size_t j = i * particleLines[i].getSize(); j < (i + 1) * particleLines[i].getSize(); j++) {
-    		fs << j << " ";
+    	for(size_t j = 0; j < particleLines[i].getSize(); j++) {
+    		fs << (k + j) << " ";
     	}
+    	k += particleLines[i].getSize();
     	fs << std::endl;
     }
 
@@ -118,10 +124,14 @@ void ParticleLine::advance(REAL delt, TracingType tr) {
 	} else if (tr == STREAKLINES) {
 		for(int i = 0; i < particles.size(); ++i) {
 			Particle * currentParticle =& particles[i];
-			std::pair<REAL, REAL> vals = velocity->advanceParticle(currentParticle->x, currentParticle->y, delt);
-			currentParticle->x = vals.first;
-			currentParticle->y = vals.second;
-			// check if leaves fluid area!
+			try {
+				std::pair<REAL, REAL> vals = velocity->advanceParticle(currentParticle->x, currentParticle->y, delt);
+				currentParticle->x = vals.first;
+				currentParticle->y = vals.second;
+			} catch(int n) {
+				particles.resize(i);
+				return;
+			}
 		}
 	}
 

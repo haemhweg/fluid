@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
   auto toUpper = [] (std::string& str) -> void { std::transform(str.begin(), str.end(),str.begin(), ::toupper); };
 
   if(argc<2){
-    cfg_PROBLEM = "config_DRIVEN_CAVATY";
+    cfg_PROBLEM = "config_DRIVEN_CAVITY";
     bc_sp_PROBLEM = bc_DRIVEN_CAVITY;
     initGeometry_PROBLEM = geometry_DRIVEN_CAVITY;
   }
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     toUpper(problem);
     
     if(problem==std::string("DRIVEN_CAVITY")){
-      cfg_PROBLEM = "config_DIRVEN_CAVATY";
+      cfg_PROBLEM = "config_DRIVEN_CAVITY";
       bc_sp_PROBLEM = bc_DRIVEN_CAVITY;
       initGeometry_PROBLEM = geometry_DRIVEN_CAVITY;      
     }else if(problem==std::string("STEP")){
@@ -93,12 +93,12 @@ int main(int argc, char* argv[])
     
   while(t<conf._time.t_end ){
     delt = compDelt(conf._geo, conf._time, conf._constants, Velocity);
-
     Velocity.setDivergenceIntermidiate(delt, Div_velocity);
     auto it_res = SOR_Poisson(conf._geo, conf._solver, geometry, Pressure, Div_velocity);
 
     Velocity.update(delt, Pressure);
 
+    tracer.advance(delt);
     if(t>next_output){      
       std::cout << "Ausgabe " << step  << ": delt = " << delt 
   		<< ", Iterationen: " << it_res.first << ", Residuum: " << it_res.second << std::endl;
@@ -108,8 +108,6 @@ int main(int argc, char* argv[])
       
       next_output += conf._time.del_vec;   
       ++step;
-
-      tracer.advance(delt);
     }
 
     t += delt; 
