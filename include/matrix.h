@@ -5,7 +5,6 @@
 #include <string>
 
 #include "real.h"
-#include "vector.h"
 
 /**
  * So I've created only matrix and no field method. Does it matter?
@@ -55,17 +54,6 @@ public:
   REAL getMax() const;
 
 };
-
-/**
- * To make operations look more descriptive, we overload operators. The question here is, whether we should define these operations so that they return void?
- * Like we would perform those operation on the subject itself: for instance, void operator*(REAL a, Matrix & A).
- * This would spare memory in case we don't need a copy of vector / matrix. Same consideration for vectors.
- */
-
-Vector operator*(const Matrix & A, const Vector & v);
-Matrix operator*(REAL a, const Matrix & A);
-Matrix operator+(const Matrix & A1, const Matrix & A2);
-bool operator==(const Matrix & A1, const Matrix & A2);
 
 /**
  *  Writes a 2D vector field to a .vtk file. The first component of the vector field is passed by the matrix

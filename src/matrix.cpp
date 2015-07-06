@@ -8,7 +8,6 @@
 
 #include "real.h"
 #include "matrix.h"
-#include "vector.h"
 
 void Matrix::allocateData()
 {
@@ -99,6 +98,12 @@ unsigned Matrix::getCols() const
 {
   return N;
 }
+
+REAL Matrix::getMax() const
+{
+	return *std::max_element(_data, _data + M*N);
+}
+
 
 void Matrix::print(const std::string& descr) const
 {
@@ -211,65 +216,4 @@ void writeVectorFieldVTK(const std::string& filename, const std::string& descr,
   }
 
   fs << std::endl;  
-}
-
-bool operator==(const Matrix & A1, const Matrix & A2)
-{
-  assert(A1.getRows() == A2.getRows() && A1.getCols() == A2.getCols());
-  
-  return std::equal(std::begin(A1), std::end(A1), std::begin(A2), REAL_equal);
-}
-
-Vector operator*(const Matrix & A, const Vector & v)
-{
-  assert(v.getSize() == A.getCols());
-
-  Vector r{v.getSize()};
-
-  for (unsigned i = 0; i < A.getRows(); i++)
-    {
-      for (unsigned j = 0; j < A.getCols(); j++)
-	{
-	  r.at(i) += A.at(i, j) * v.at(j);
-	}
-    }
-  
-  return r;
-}
-
-Matrix operator*(REAL a, const Matrix & A)
-{
-  Matrix B{A.getRows(), A.getCols()};
-
-  for (unsigned i = 0; i < A.getRows(); i++)
-    {
-      for (unsigned j = 0; j < A.getCols(); j++)
-	{
-	  B.at(i, j) =  a * A.at(i, j);
-	}
-    }
-
-  return B;
-}
-
-Matrix operator+(const Matrix & A1, const Matrix & A2)
-{
-  assert(A1.getRows() == A2.getRows() && A1.getCols() == A2.getCols());
-
-  Matrix B{A1.getRows(), A1.getCols()};
-
-  for (unsigned i = 0; i < A1.getRows(); i++)
-    {
-      for (unsigned j = 0; j < A1.getCols(); j++)
-	{
-	  B.at(i, j) = A1.at(i, j) + A2.at(i, j);
-	}
-    }
-
-  return B;
-}
-
-REAL Matrix::getMax() const
-{
-	return *std::max_element(_data, _data + M*N);
 }
