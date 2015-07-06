@@ -8,6 +8,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 ######################################################
+## include MPI
+find_package(MPI REQUIRED)
+include_directories(SYSTEM ${MPI_INCLUDE_PATH})
+
+######################################################
 ## add C++11 flag
 if(UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
@@ -40,4 +45,4 @@ foreach(InputFile ${InputFiles})
 endforeach()
 
 add_executable(blatt3 blatt3.cpp)
-target_link_libraries(blatt3 CFD)
+target_link_libraries(blatt3 CFD ${MPI_LIBRARIES})
