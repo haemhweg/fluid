@@ -246,8 +246,8 @@ void Velocity::updateIntermidiate(const REAL delt)
     F.at(imax,j) = U.at(imax,j);
   }
   for(unsigned i=1; i<imax+1; ++i){
-    G.at(i,0) = G.at(i,0);
-    G.at(i,jmax) = G.at(i,jmax);
+    G.at(i,0) = V.at(i,0);
+    G.at(i,jmax) = V.at(i,jmax);
   }
 
   auto boundary = geometry.get_boundary();
@@ -293,6 +293,8 @@ void Velocity::updateIntermidiate(const REAL delt)
 
 void Velocity::setDivergenceIntermidiate(const REAL delt, Matrix& div)
 {  
+  updateBoundary();
+
   updateIntermidiate(delt);
   
   for(unsigned i=1; i<geoConfig.imax+1; ++i){
@@ -309,8 +311,6 @@ void Velocity::update(const REAL delt, const Matrix& P)
   const REAL dely = geoConfig.dely;
   
   auto fluid = geometry.get_fluid();
-
-  updateBoundary();
 
   for(const auto cells : fluid){
     unsigned i = cells.first, j = cells.second;
