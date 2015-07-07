@@ -3,14 +3,14 @@ jmax 20
 xlength 10
 ylength 2
 
-t_end 100
+t_end 20
 tau 0.5
-del_vec 5
+del_vec 0.4
 
 eps 1e-3
 omega 1.7
 alpha 0.9
-itmax 100
+itmax 500
 
 GX 0.0
 GY 0.0

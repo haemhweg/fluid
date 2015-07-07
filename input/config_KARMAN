@@ -5,12 +5,12 @@ ylength 2
 
 t_end 20
 tau 0.5
-del_vec 1
+del_vec 0.4
 
 eps 1e-3
 omega 1.7
 alpha 0.9
-itmax 500
+itmax 1000
 
 GX 0.0
 GY 0.0
